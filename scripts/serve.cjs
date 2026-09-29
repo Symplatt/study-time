@@ -1,0 +1,3 @@
+const http=require('node:http'),fs=require('node:fs'),path=require('node:path');
+const root=path.resolve(__dirname,'../web');
+http.createServer((req,res)=>{const name=req.url.split('?')[0]==='/'?'index.html':req.url.split('?')[0].slice(1);if(!['index.html','style.css','core.js','app.js'].includes(name)){res.writeHead(404);return res.end();}res.setHeader('Content-Type',({'html':'text/html','css':'text/css','js':'application/javascript'})[name.split('.').pop()]+'; charset=utf-8');res.end(fs.readFileSync(path.join(root,name)));}).listen(4173,'0.0.0.0',()=>console.log('Preview: http://localhost:4173'));

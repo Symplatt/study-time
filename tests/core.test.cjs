@@ -1,0 +1,11 @@
+const {test}=require('node:test'),assert=require('node:assert/strict'),C=require('../web/core.js');
+const t=s=>new Date(s).getTime();
+test('暂停时间不计入，多次恢复后按起止时间累计',()=>{let s=C.start(C.initial(),1000);s=C.toggle(s,61000);assert.equal(C.duration(s.active,999999),60000);s=C.toggle(s,121000);s=C.finish(s,181000);assert.equal(C.duration(s.records[0],999999),120000);assert.equal(s.active,null);});
+test('不依赖刷新次数，长时间锁屏与序列化恢复不漂移',()=>{let s=C.start(C.initial(),1000);s=JSON.parse(JSON.stringify(s));assert.equal(C.duration(s.active,36001000),36000000);assert.ok(C.validState(s));});
+test('重复开始或结束不会重复产生记录',()=>{let s=C.start(C.initial(),1000);s=C.start(s,2000);assert.equal(s.active.started,1000);s=C.finish(s,3000);s=C.finish(s,4000);assert.equal(s.records.length,1);});
+test('跨午夜按自然日拆分且总量守恒',()=>{let s=C.start(C.initial(),t('2026-09-27T23:50:00'));s=C.finish(s,t('2026-09-28T00:20:00'));const rows=C.rows(s,t('2026-09-28T00:20:00'));assert.equal(rows.length,2);assert.equal(rows[0].ms,600000);assert.equal(rows[1].ms,1200000);assert.equal(C.buckets(s,'week',t('2026-09-28T12:00:00')).sessions,1);});
+test('跨日暂停不会给暂停日添加学习时长',()=>{let s=C.start(C.initial(),t('2026-09-26T23:00:00'));s=C.toggle(s,t('2026-09-26T23:10:00'));s=C.toggle(s,t('2026-09-28T09:00:00'));s=C.finish(s,t('2026-09-28T09:20:00'));const rows=C.rows(s,0);assert.deepEqual(rows.map(r=>r.date),['2026-09-26','2026-09-28']);assert.equal(rows.reduce((n,r)=>n+r.ms,0),1800000);});
+test('近七天含今天、排除第八天，空日期补零',()=>{let s=C.initial();for(const day of ['20','21','28']){s=C.start(s,t(`2026-09-${day}T12:00:00`));s=C.finish(s,t(`2026-09-${day}T13:00:00`));}const d=C.buckets(s,'week',t('2026-09-28T14:00:00'));assert.equal(d.buckets.length,7);assert.equal(d.buckets[0].key,'2026-09-22');assert.equal(d.total,3600000);assert.equal(d.activeDays,1);});
+test('跨年月份有序、近30天长度正确',()=>{const now=t('2026-01-02T12:00:00');const d=C.buckets(C.initial(),'year',now);assert.equal(d.buckets[0].key,'2025-02');assert.equal(d.buckets[11].key,'2026-01');assert.equal(C.buckets(C.initial(),'month',now).buckets.length,30);});
+test('系统时间回调不产生负时长',()=>{const s=C.start(C.initial(),5000);assert.equal(C.duration(s.active,1000),0);});
+test('损坏的数据会被识别',()=>{assert.equal(C.validState({version:1,records:[{}],active:null}),false);assert.ok(C.validState(C.initial()));});

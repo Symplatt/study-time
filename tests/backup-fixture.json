@@ -1,0 +1,19 @@
+{
+  "format": "shishi-backup",
+  "version": 1,
+  "exportedAt": "2026-09-28T14:05:00.190Z",
+  "records": [
+    {
+      "id": "1790470800000",
+      "started": 1790470800000,
+      "since": null,
+      "segments": [
+        [
+          1790470800000,
+          1790476200000
+        ]
+      ],
+      "ended": 1790476200000
+    }
+  ]
+}
