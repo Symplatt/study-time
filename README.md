@@ -10,7 +10,15 @@
 - 总时长、日均时长、专注次数、学习天数和单日/单月最佳。
 - 原生 SharedPreferences 持久化，退出、锁屏或进程被回收后恢复计时。
 - 按每段起止时间差累计，暂停不计入；跨午夜按当地日期拆分。
-- 底部“设置”根页面并列提供数据导入、导出按钮，支持 JSON 导入导出，导出复制到剪切板，导入使用系统文件选择器，不申请全盘存储权限。
+- 底部“设置”根页面并列提供数据导入、导出按钮，支持 JSON 导入导出，导出复制到剪切板，导入读取剪切板中的 JSON 并显示预览，不申请全盘存储权限。
+
+## 1.0.4 更新
+
+- 设置页“导入数据”改为读取剪切板，保留预览、确认合并、去重和冲突保护。
+- 先复制完整 JSON 备份内容，再点击“导入数据”；检查预览后点击“确认导入”。
+- 空剪切板、读取失败或无效备份会提示错误，不写入记录。网页使用时需要浏览器支持并允许剪切板读取（localhost 或 HTTPS）。
+- Android versionCode 递增至 5。
+- 本版本沿用本机保留的 1.0.2 签名（证书 SHA-256 已核对一致），与远程 1.0.3 的替换签名不同，不能覆盖安装 1.0.3。已安装 1.0.3 的用户请先导出并将 JSON 备份保存到应用外，确认备份可用后再卸载、安装和导入恢复；卸载会清除应用内记录。
 
 ## 1.0.3 更新
 
@@ -57,20 +65,12 @@ Android 项目在 `android` 中，使用 JDK 17+、Gradle 8.14、Android SDK 35 
 本地 HTML 采用 Android 官方建议的 `loadDataWithBaseURL` 载入，禁用文件访问与外部导航；APK 未申请网络权限。
 参考：https://developer.android.com/develop/ui/views/layout/webapps/load-local-content
 
-也可完全离线构建：在项目目录运行 `./scripts/build-apk.ps1 -Sdk <SDK目录> -Jdk <JDK目录>`，脚本直接使用官方 aapt2、javac、d8、zipalign、apksigner，不依赖 Gradle 下载。输出 `dist/shishi-1.0.3.apk`。
+也可完全离线构建：在项目目录运行 `./scripts/build-apk.ps1 -Sdk <SDK目录> -Jdk <JDK目录>`，脚本直接使用官方 aapt2、javac、d8、zipalign、apksigner，不依赖 Gradle 下载。输出 `dist/shishi-1.0.4.apk`。
 
 交付 APK 为本地测试签名包，不是应用商店发布包；签名密钥保存在本项目 `.tools/debug.keystore`，后续升级需保留该密钥。
 
 ## 验证范围
 
-- 16 项计时、统计及备份自动测试通过。
-- 手机宽度预览检查通过；开始、暂停、刷新恢复、继续、结束保存、历史日期与三种统计范围均经界面操作验证。
-- APK 构建成功，v2 / v3 签名验证通过。
-- 1.1.0 浏览器预览确认精简界面、图标、分隔线、文件导入预览、统计更新及重复导入拦截。
-- 浏览器内导出按钮已触发，但预览工具未捕获下载事件，未据此确认下载完成。
-- 尚未在实体 Android 手机验证状态栏、系统文件选择器及覆盖安装。
-
-原生适配依据：
-- https://developer.android.com/develop/ui/views/layout/edge-to-edge
-- https://developer.android.com/develop/ui/views/layout/webapps/understand-window-insets
-- https://developer.android.com/training/data-storage/shared/documents-files
+- 25 项计时、统计、备份及剪切板导入导出自动测试通过，JavaScript 语法检查通过。
+- APK 构建及 v2/v3 签名验证通过，版本元数据已核对。
+- 实体 Android 设备剪切板读取、系统栏及覆盖安装未验证；浏览器实际权限弹窗未验证。

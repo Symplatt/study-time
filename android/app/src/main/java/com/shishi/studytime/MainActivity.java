@@ -3,7 +3,6 @@ package com.shishi.studytime;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Build;
-import android.content.Intent;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.SharedPreferences;
@@ -23,9 +22,7 @@ import org.json.JSONObject;
 
 public class MainActivity extends Activity {
     private WebView web;
-    private static final int IMPORT_FILE = 102;
     private static final int MAX_BACKUP = 10 * 1024 * 1024;
-    private boolean fileBusy;
     public final class Store {
         private final SharedPreferences prefs = getSharedPreferences("study-records", MODE_PRIVATE);
         @JavascriptInterface public String read() { return prefs.getString("state", ""); }
@@ -43,42 +40,24 @@ public class MainActivity extends Activity {
         }
         @JavascriptInterface public void importData() {
             runOnUiThread(() -> {
-                if (fileBusy) return;
-                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
-                intent.setType("*/*");
-                openPicker(intent, IMPORT_FILE);
+                try {
+                    ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                    if (clipboard == null) throw new IllegalStateException("Clipboard unavailable");
+                    ClipData clip = clipboard.getPrimaryClip();
+                    CharSequence value = clip == null || clip.getItemCount() == 0 ? null : clip.getItemAt(0).getText();
+                    if (value == null || value.toString().trim().isEmpty()) { fileResult(false,"剪切板中没有文本，请先复制备份数据"); return; }
+                    String text = value.toString();
+                    if (text.getBytes(StandardCharsets.UTF_8).length > MAX_BACKUP) { fileResult(false,"备份不能超过 10 MB"); return; }
+                    runScript("window.receiveStudyImport && window.receiveStudyImport("+JSONObject.quote(text)+")");
+                } catch (Exception e) { fileResult(false,"无法读取剪切板，请重新复制备份数据后重试"); }
             });
         }
-    }
-    private void openPicker(Intent intent, int code) {
-        try { fileBusy=true; startActivityForResult(intent,code); }
-        catch (Exception e) { fileBusy=false;  fileResult(false,"无法打开系统文件选择器"); }
     }
     private void runScript(String script) {
         runOnUiThread(() -> { if (!isDestroyed() && web!=null) web.evaluateJavascript(script,null); });
     }
     private void fileResult(boolean success,String message) {
         runScript("window.studyFileResult && window.studyFileResult("+success+","+JSONObject.quote(message)+")");
-    }
-    @Override protected void onActivityResult(int requestCode,int resultCode,Intent data) {
-        super.onActivityResult(requestCode,resultCode,data);
-        if (requestCode!=IMPORT_FILE) return;
-        if (resultCode!=RESULT_OK || data==null || data.getData()==null) {fileBusy=false;return;}
-        final android.net.Uri uri=data.getData();
-        new Thread(() -> {
-            try {
-                    try(java.io.InputStream input=getContentResolver().openInputStream(uri)) {
-                        if(input==null)throw new java.io.IOException("Cannot read");
-                        java.io.ByteArrayOutputStream output=new java.io.ByteArrayOutputStream();
-                        byte[] buffer=new byte[8192];int n;
-                        while((n=input.read(buffer))!=-1){if(output.size()+n>MAX_BACKUP){fileResult(false,"备份文件不能超过 10 MB");return;}output.write(buffer,0,n);}
-                        String text=output.toString("UTF-8");
-                        runScript("window.receiveStudyImport && window.receiveStudyImport("+JSONObject.quote(text)+")");
-                    }
-            } catch(Exception e) {fileResult(false,"无法读取文件，请重新选择备份文件");}
-            finally {runOnUiThread(()->fileBusy=false);}
-        },"study-backup").start();
     }
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

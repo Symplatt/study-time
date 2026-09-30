@@ -18,7 +18,7 @@
       <p class="bottom-note"><span data-icon="shield"></span>数据仅保存在此设备</p>
     </section>
     <section id="stats-view" hidden><div class="page-heading"><div><h1>学习统计</h1></div><span class="stats-emblem" data-icon="chart"></span></div><div class="period-tabs" role="tablist" aria-label="统计时间范围"><button role="tab" aria-selected="true" data-period="week">近一周</button><button role="tab" aria-selected="false" data-period="month">近一个月</button><button role="tab" aria-selected="false" data-period="year">近一年</button></div><section class="chart-card"><div class="section-heading"><h2>专注时长</h2><span id="chart-unit" class="muted">单位：分钟</span></div><div class="chart-total" id="stats-total"></div><p class="muted" id="stats-range"></p><div class="chart-area"><div class="chart-grid" id="chart-grid"></div><div id="chart-bars" class="chart-bars" aria-label="学习时长柱状图"></div></div><div class="chart-labels" id="chart-labels"></div><p class="chart-detail" id="chart-detail" aria-live="polite">点击柱形，查看详细记录</p></section><div class="stats-grid"><div class="stat-card"><span data-icon="sun"></span><p>日均学习</p><strong id="stats-average"></strong></div><div class="stat-card"><span data-icon="book"></span><p>专注次数</p><strong id="stats-sessions"></strong></div><div class="stat-card"><span data-icon="calendar"></span><p>学习天数</p><strong id="stats-days"></strong></div><div class="stat-card"><span data-icon="trophy"></span><p id="best-label">单日最佳</p><strong id="stats-best"></strong><small id="best-date"></small></div></div></section>
-    <section id="settings-view" hidden aria-labelledby="settings-title"><div class="page-heading"><h1 id="settings-title">设置</h1><span class="stats-emblem" data-icon="settings"></span></div><section class="settings-card" aria-labelledby="data-title"><div class="section-heading"><h2 id="data-title">数据管理</h2></div><p class="data-description">导出将 JSON 数据复制到剪切板，可粘贴保存为 .json 文件备份；导入时选择备份文件。</p><div class="data-actions"><button id="export-button" class="full-button"><span data-icon="upload"></span>导出数据</button><button id="import-button" class="full-button"><span data-icon="download"></span>导入数据</button></div><p class="data-note">仅导出已结束的记录；进行中的计时请先结束。导入会合并记录，重复项不会重复添加。</p><input id="import-file" type="file" accept=".json,application/json,text/plain" hidden><section id="import-preview" hidden><h3>导入预览</h3><p id="import-summary"></p><p class="data-note" id="import-conflicts"></p><div class="data-actions"><button id="cancel-import" class="full-button secondary">取消</button><button id="confirm-import" class="full-button">确认导入</button></div></section></section></section>
+    <section id="settings-view" hidden aria-labelledby="settings-title"><div class="page-heading"><h1 id="settings-title">设置</h1><span class="stats-emblem" data-icon="settings"></span></div><section class="settings-card" aria-labelledby="data-title"><div class="section-heading"><h2 id="data-title">数据管理</h2></div><p class="data-description">导出将 JSON 数据复制到剪切板；导入前请先复制备份内容，再点击导入数据。</p><div class="data-actions"><button id="export-button" class="full-button"><span data-icon="upload"></span>导出数据</button><button id="import-button" class="full-button"><span data-icon="download"></span>导入数据</button></div><p class="data-note">仅导出已结束的记录；进行中的计时请先结束。导入会合并记录，重复项不会重复添加。</p><section id="import-preview" hidden><h3>导入预览</h3><p id="import-summary"></p><p class="data-note" id="import-conflicts"></p><div class="data-actions"><button id="cancel-import" class="full-button secondary">取消</button><button id="confirm-import" class="full-button">确认导入</button></div></section></section></section>
   </main>
   <nav class="bottom-nav" aria-label="主导航"><button class="active" id="nav-home" aria-current="page"><span data-icon="home"></span><span>首页</span></button><button id="nav-stats"><span data-icon="chart"></span><span>视图</span></button><button id="nav-settings"><span data-icon="settings"></span><span>设置</span></button></nav>
 </div>
@@ -85,10 +85,10 @@
     return JSON.stringify({format:'shishi-backup',version:1,exportedAt:new Date(now).toISOString(),records:state.records},null,2);
   }
   function parseBackup(text) {
-    if(typeof text!=='string'||text.length>10*1024*1024) throw Error('备份文件不能超过 10 MB');
+    if(typeof text!=='string'||text.length>10*1024*1024) throw Error('备份不能超过 10 MB');
     let backup;
-    try {backup=JSON.parse(text.replace(/^\uFEFF/,''));}catch(e){throw Error('文件不是有效的 JSON 备份');}
-    if(!backup||backup.format!=='shishi-backup'||backup.version!==1||!Array.isArray(backup.records)) throw Error('不支持此备份格式，请选择拾时导出的 JSON 文件');
+    try {backup=JSON.parse(text.replace(/^\uFEFF/,''));}catch(e){throw Error('内容不是有效的 JSON 备份');}
+    if(!backup||backup.format!=='shishi-backup'||backup.version!==1||!Array.isArray(backup.records)) throw Error('不支持此备份格式，请复制拾时导出的 JSON 数据');
     if(backup.records.length>50000)throw Error('单个备份最多支持 50000 条记录');
     const time=n=>Number.isSafeInteger(n)&&n>=0&&n<8640000000000000;
     let spans=0,days=0;
@@ -151,9 +151,11 @@
   function renderCalendar(){const y=calendarMonth.getFullYear(),m=calendarMonth.getMonth(),offset=(new Date(y,m,1).getDay()+6)%7,count=new Date(y,m+1,0).getDate(),today=C.dateKey(Date.now()),recorded=new Set(C.rows(state,Date.now()).map(r=>r.date));$('calendar-month').textContent=`${y}年 ${m+1}月`;$('next-month').disabled=y===new Date().getFullYear()&&m===new Date().getMonth();$('calendar-days').innerHTML='<span></span>'.repeat(offset)+Array.from({length:count},(_,i)=>{const key=C.dateKey(new Date(y,m,i+1));return `<button data-date="${key}" class="${key===selected?'selected ':''}${key===today?'today ':''}${recorded.has(key)?'has-record':''}" ${key>today?'disabled':''} aria-label="${key}${recorded.has(key)?'，有学习记录':''}" aria-pressed="${key===selected}">${i+1}</button>`;}).join('');$('calendar-days').querySelectorAll('button').forEach(b=>b.onclick=()=>pickDate(b.dataset.date));}
   $('date-button').onclick=()=>{calendarMonth=C.localDate(selected);calendarMonth.setDate(1);renderCalendar();$('calendar-dialog').showModal();};$('close-calendar').onclick=()=>$('calendar-dialog').close();$('calendar-today').onclick=()=>pickDate(C.dateKey(Date.now()));$('previous-month').onclick=()=>{calendarMonth.setMonth(calendarMonth.getMonth()-1);renderCalendar();};$('next-month').onclick=()=>{calendarMonth.setMonth(calendarMonth.getMonth()+1);renderCalendar();};$('calendar-dialog').addEventListener('click',e=>{if(e.target===$('calendar-dialog')){const r=e.target.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)e.target.close();}});
   let pendingImport=null;
-  function resetImport(){pendingImport=null;$('import-preview').hidden=true;$('import-file').value='';}
+  function resetImport(){pendingImport=null;$('import-preview').hidden=true;}
   function receiveImport(text){
     try{
+      if(!text || !text.trim())throw Error('剪切板中没有文本，请先复制备份数据');
+      if(new Blob([text]).size>10*1024*1024)throw Error('备份不能超过 10 MB');
       pendingImport=C.parseBackup(text);
       const result=C.mergeRecords(state,pendingImport);
       $('import-summary').textContent=`共 ${pendingImport.length} 条记录，将新增 ${result.added} 条，跳过 ${result.duplicates} 条重复记录。`;
@@ -182,11 +184,13 @@
       toast('数据已复制到剪切板');
     }catch(e){toast('复制失败，请检查剪切板权限后重试');}
   };
-  $('import-button').onclick=()=>{resetImport();if(window.AndroidStore)AndroidStore.importData();else $('import-file').click();};
-  $('import-file').onchange=async event=>{
-    const file=event.target.files[0];if(!file)return;
-    if(file.size>10*1024*1024){toast('备份文件不能超过 10 MB');return;}
-    try{receiveImport(await file.text());}catch(e){toast('无法读取备份文件');}
+  $('import-button').onclick=async ()=>{
+    resetImport();
+    try{
+      if(window.AndroidStore){AndroidStore.importData();return;}
+      if(!navigator.clipboard || !navigator.clipboard.readText)throw Error('Clipboard unavailable');
+      receiveImport(await navigator.clipboard.readText());
+    }catch(e){toast('读取失败，请检查剪切板权限后重试');}
   };
   window.addEventListener('storage',()=>{state=read();render();});document.addEventListener('visibilitychange',()=>{if(!document.hidden)render();});
   setInterval(()=>{const today=C.dateKey(Date.now());if(today!==lastToday){if(selected===lastToday)selected=today;lastToday=today;render();}else if(state.active&&view==='home')renderHome();},1000);

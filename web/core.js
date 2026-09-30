@@ -58,10 +58,10 @@
     return JSON.stringify({format:'shishi-backup',version:1,exportedAt:new Date(now).toISOString(),records:state.records},null,2);
   }
   function parseBackup(text) {
-    if(typeof text!=='string'||text.length>10*1024*1024) throw Error('备份文件不能超过 10 MB');
+    if(typeof text!=='string'||text.length>10*1024*1024) throw Error('备份不能超过 10 MB');
     let backup;
-    try {backup=JSON.parse(text.replace(/^\uFEFF/,''));}catch(e){throw Error('文件不是有效的 JSON 备份');}
-    if(!backup||backup.format!=='shishi-backup'||backup.version!==1||!Array.isArray(backup.records)) throw Error('不支持此备份格式，请选择拾时导出的 JSON 文件');
+    try {backup=JSON.parse(text.replace(/^\uFEFF/,''));}catch(e){throw Error('内容不是有效的 JSON 备份');}
+    if(!backup||backup.format!=='shishi-backup'||backup.version!==1||!Array.isArray(backup.records)) throw Error('不支持此备份格式，请复制拾时导出的 JSON 数据');
     if(backup.records.length>50000)throw Error('单个备份最多支持 50000 条记录');
     const time=n=>Number.isSafeInteger(n)&&n>=0&&n<8640000000000000;
     let spans=0,days=0;

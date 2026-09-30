@@ -28,9 +28,11 @@
   function renderCalendar(){const y=calendarMonth.getFullYear(),m=calendarMonth.getMonth(),offset=(new Date(y,m,1).getDay()+6)%7,count=new Date(y,m+1,0).getDate(),today=C.dateKey(Date.now()),recorded=new Set(C.rows(state,Date.now()).map(r=>r.date));$('calendar-month').textContent=`${y}年 ${m+1}月`;$('next-month').disabled=y===new Date().getFullYear()&&m===new Date().getMonth();$('calendar-days').innerHTML='<span></span>'.repeat(offset)+Array.from({length:count},(_,i)=>{const key=C.dateKey(new Date(y,m,i+1));return `<button data-date="${key}" class="${key===selected?'selected ':''}${key===today?'today ':''}${recorded.has(key)?'has-record':''}" ${key>today?'disabled':''} aria-label="${key}${recorded.has(key)?'，有学习记录':''}" aria-pressed="${key===selected}">${i+1}</button>`;}).join('');$('calendar-days').querySelectorAll('button').forEach(b=>b.onclick=()=>pickDate(b.dataset.date));}
   $('date-button').onclick=()=>{calendarMonth=C.localDate(selected);calendarMonth.setDate(1);renderCalendar();$('calendar-dialog').showModal();};$('close-calendar').onclick=()=>$('calendar-dialog').close();$('calendar-today').onclick=()=>pickDate(C.dateKey(Date.now()));$('previous-month').onclick=()=>{calendarMonth.setMonth(calendarMonth.getMonth()-1);renderCalendar();};$('next-month').onclick=()=>{calendarMonth.setMonth(calendarMonth.getMonth()+1);renderCalendar();};$('calendar-dialog').addEventListener('click',e=>{if(e.target===$('calendar-dialog')){const r=e.target.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)e.target.close();}});
   let pendingImport=null;
-  function resetImport(){pendingImport=null;$('import-preview').hidden=true;$('import-file').value='';}
+  function resetImport(){pendingImport=null;$('import-preview').hidden=true;}
   function receiveImport(text){
     try{
+      if(!text || !text.trim())throw Error('剪切板中没有文本，请先复制备份数据');
+      if(new Blob([text]).size>10*1024*1024)throw Error('备份不能超过 10 MB');
       pendingImport=C.parseBackup(text);
       const result=C.mergeRecords(state,pendingImport);
       $('import-summary').textContent=`共 ${pendingImport.length} 条记录，将新增 ${result.added} 条，跳过 ${result.duplicates} 条重复记录。`;
@@ -59,11 +61,13 @@
       toast('数据已复制到剪切板');
     }catch(e){toast('复制失败，请检查剪切板权限后重试');}
   };
-  $('import-button').onclick=()=>{resetImport();if(window.AndroidStore)AndroidStore.importData();else $('import-file').click();};
-  $('import-file').onchange=async event=>{
-    const file=event.target.files[0];if(!file)return;
-    if(file.size>10*1024*1024){toast('备份文件不能超过 10 MB');return;}
-    try{receiveImport(await file.text());}catch(e){toast('无法读取备份文件');}
+  $('import-button').onclick=async ()=>{
+    resetImport();
+    try{
+      if(window.AndroidStore){AndroidStore.importData();return;}
+      if(!navigator.clipboard || !navigator.clipboard.readText)throw Error('Clipboard unavailable');
+      receiveImport(await navigator.clipboard.readText());
+    }catch(e){toast('读取失败，请检查剪切板权限后重试');}
   };
   window.addEventListener('storage',()=>{state=read();render();});document.addEventListener('visibilitychange',()=>{if(!document.hidden)render();});
   setInterval(()=>{const today=C.dateKey(Date.now());if(today!==lastToday){if(selected===lastToday)selected=today;lastToday=today;render();}else if(state.active&&view==='home')renderHome();},1000);
