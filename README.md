@@ -10,7 +10,14 @@
 - 总时长、日均时长、专注次数、学习天数和单日/单月最佳。
 - 原生 SharedPreferences 持久化，退出、锁屏或进程被回收后恢复计时。
 - 按每段起止时间差累计，暂停不计入；跨午夜按当地日期拆分。
-- 顶部“数据”支持 JSON 导入导出，导出复制到剪切板，导入使用系统文件选择器，不申请全盘存储权限。
+- 底部“设置”根页面并列提供数据导入、导出按钮，支持 JSON 导入导出，导出复制到剪切板，导入使用系统文件选择器，不申请全盘存储权限。
+
+## 1.0.3 更新
+
+- 移除带图标和软件名称的顶部导航栏，底部新增“设置”。
+- 数据导入、导出按钮并列放在设置根页面，导入预览也直接在该页面展开。
+- Android versionCode 递增至 4，包名不变；因原签名缺失，经用户授权改用新本地签名。
+- 新签名无法覆盖旧签名版本：请先在旧版导出备份，卸载后安装新版并导入恢复。
 
 ## 1.0.2 更新
 
@@ -50,7 +57,7 @@ Android 项目在 `android` 中，使用 JDK 17+、Gradle 8.14、Android SDK 35 
 本地 HTML 采用 Android 官方建议的 `loadDataWithBaseURL` 载入，禁用文件访问与外部导航；APK 未申请网络权限。
 参考：https://developer.android.com/develop/ui/views/layout/webapps/load-local-content
 
-也可完全离线构建：在项目目录运行 `./scripts/build-apk.ps1 -Sdk <SDK目录> -Jdk <JDK目录>`，脚本直接使用官方 aapt2、javac、d8、zipalign、apksigner，不依赖 Gradle 下载。输出 `dist/shishi-1.0.2.apk`。
+也可完全离线构建：在项目目录运行 `./scripts/build-apk.ps1 -Sdk <SDK目录> -Jdk <JDK目录>`，脚本直接使用官方 aapt2、javac、d8、zipalign、apksigner，不依赖 Gradle 下载。输出 `dist/shishi-1.0.3.apk`。
 
 交付 APK 为本地测试签名包，不是应用商店发布包；签名密钥保存在本项目 `.tools/debug.keystore`，后续升级需保留该密钥。
 

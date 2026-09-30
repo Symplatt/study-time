@@ -1,7 +1,7 @@
 (() => {
   'use strict';
   const C=StudyCore, $=id=>document.getElementById(id);
-  const paths={database:'M20 5c0 2-16 2-16 0s16-2 16 0v14c0 2-16 2-16 0V5M4 12c0 2 16 2 16 0',download:'M12 3v12m-5-5 5 5 5-5M4 17v4h16v-4',upload:'M12 16V4m-5 5 5-5 5 5M4 17v4h16v-4',play:'m9 5 11 7-11 7z',pause:'M8 5v14M16 5v14',stop:'M6 6h12v12H6z',home:'m3 10 9-7 9 7v10H3z M9 20v-7h6v7',chart:'M4 20V10m8 10V4m8 16v-7',chevron:'m7 10 5 5 5-5',close:'m6 6 12 12M6 18 18 6',book:'M12 5C8 2 4 3 2 4v15c4-2 7-1 10 1 3-2 6-3 10-1V4c-4-2-7-1-10 1v15',clock:'M12 8v5l3 2 M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0',calendar:'M5 5h14a2 2 0 0 1 2 2v13H3V7a2 2 0 0 1 2-2 M7 3v4m10-4v4M3 10h18',sprout:'M12 22V11C12 4 17 3 22 3c0 6-4 10-10 8M12 16C4 16 2 12 2 7c6 0 10 3 10 9',leaf:'M4 20C4 8 12 3 21 3c0 12-7 16-14 13M4 20 15 9',shield:'m12 2 9 4v6c0 5-5 8-9 10-4-2-9-5-9-10V6z m-4 10 3 3 5-6',sun:'M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0 M12 1v2m0 18v2M1 12h2m18 0h2M4 4l2 2m12 12 2 2M4 20l2-2M18 6l2-2',trophy:'M7 3h10v6c0 7-10 7-10 0z M7 5H3v4c0 3 3 4 5 4m9-8h4v4c0 3-3 4-5 4M12 15v5m-5 1h10'};
+  const paths={settings:'M9 3h6l1 3 3 1 2 5-2 5-3 1-1 3H9l-1-3-3-1-2-5 2-5 3-1z M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0',database:'M20 5c0 2-16 2-16 0s16-2 16 0v14c0 2-16 2-16 0V5M4 12c0 2 16 2 16 0',download:'M12 3v12m-5-5 5 5 5-5M4 17v4h16v-4',upload:'M12 16V4m-5 5 5-5 5 5M4 17v4h16v-4',play:'m9 5 11 7-11 7z',pause:'M8 5v14M16 5v14',stop:'M6 6h12v12H6z',home:'m3 10 9-7 9 7v10H3z M9 20v-7h6v7',chart:'M4 20V10m8 10V4m8 16v-7',chevron:'m7 10 5 5 5-5',close:'m6 6 12 12M6 18 18 6',book:'M12 5C8 2 4 3 2 4v15c4-2 7-1 10 1 3-2 6-3 10-1V4c-4-2-7-1-10 1v15',clock:'M12 8v5l3 2 M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0',calendar:'M5 5h14a2 2 0 0 1 2 2v13H3V7a2 2 0 0 1 2-2 M7 3v4m10-4v4M3 10h18',sprout:'M12 22V11C12 4 17 3 22 3c0 6-4 10-10 8M12 16C4 16 2 12 2 7c6 0 10 3 10 9',leaf:'M4 20C4 8 12 3 21 3c0 12-7 16-14 13M4 20 15 9',shield:'m12 2 9 4v6c0 5-5 8-9 10-4-2-9-5-9-10V6z m-4 10 3 3 5-6',sun:'M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0 M12 1v2m0 18v2M1 12h2m18 0h2M4 4l2 2m12 12 2 2M4 20l2-2M18 6l2-2',trophy:'M7 3h10v6c0 7-10 7-10 0z M7 5H3v4c0 3 3 4 5 4m9-8h4v4c0 3-3 4-5 4M12 15v5m-5 1h10'};
   const icon=name=>`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${paths[name]||paths.clock}"/></svg>`;
   document.querySelectorAll('[data-icon]').forEach(e=>e.innerHTML=icon(e.dataset.icon));
   let storageError=false;
@@ -20,15 +20,14 @@
   $('start-button').onclick=()=>{if(save(C.start(state,Date.now()))){selected=C.dateKey(Date.now());render();toast('专注已开始，锁屏后仍会继续计时');}};
   $('pause-button').onclick=()=>{if(save(C.toggle(state,Date.now())))render();};
   $('finish-button').onclick=()=>{if(save(C.finish(state,Date.now()))){render();toast('本次学习已保存');}};
-  function navigate(next){view=next;$('home-view').hidden=next!=='home';$('stats-view').hidden=next!=='stats';for(const item of ['home','stats']){const b=$(`nav-${item}`);b.classList.toggle('active',next===item);if(next===item)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');}if(next==='stats')renderStats();else renderHome();window.scrollTo(0,0);}
-  $('nav-home').onclick=()=>navigate('home');$('nav-stats').onclick=()=>navigate('stats');document.querySelector('.brand a').onclick=e=>{e.preventDefault();navigate('home');};
+  function navigate(next){view=next;$('home-view').hidden=next!=='home';$('stats-view').hidden=next!=='stats';$('settings-view').hidden=next!=='settings';for(const item of ['home','stats','settings']){const b=$(`nav-${item}`);b.classList.toggle('active',next===item);if(next===item)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');}if(next==='stats')renderStats();else renderHome();window.scrollTo(0,0);}
+  $('nav-home').onclick=()=>navigate('home');$('nav-stats').onclick=()=>navigate('stats');$('nav-settings').onclick=()=>navigate('settings');
   document.querySelectorAll('[data-period]').forEach(b=>b.onclick=()=>{period=b.dataset.period;document.querySelectorAll('[data-period]').forEach(x=>x.setAttribute('aria-selected',String(x===b)));renderStats();});
   function pickDate(key){selected=key;renderHome();$('calendar-dialog').close();}
   $('today-button').onclick=()=>pickDate(C.dateKey(Date.now()));
   function renderCalendar(){const y=calendarMonth.getFullYear(),m=calendarMonth.getMonth(),offset=(new Date(y,m,1).getDay()+6)%7,count=new Date(y,m+1,0).getDate(),today=C.dateKey(Date.now()),recorded=new Set(C.rows(state,Date.now()).map(r=>r.date));$('calendar-month').textContent=`${y}年 ${m+1}月`;$('next-month').disabled=y===new Date().getFullYear()&&m===new Date().getMonth();$('calendar-days').innerHTML='<span></span>'.repeat(offset)+Array.from({length:count},(_,i)=>{const key=C.dateKey(new Date(y,m,i+1));return `<button data-date="${key}" class="${key===selected?'selected ':''}${key===today?'today ':''}${recorded.has(key)?'has-record':''}" ${key>today?'disabled':''} aria-label="${key}${recorded.has(key)?'，有学习记录':''}" aria-pressed="${key===selected}">${i+1}</button>`;}).join('');$('calendar-days').querySelectorAll('button').forEach(b=>b.onclick=()=>pickDate(b.dataset.date));}
   $('date-button').onclick=()=>{calendarMonth=C.localDate(selected);calendarMonth.setDate(1);renderCalendar();$('calendar-dialog').showModal();};$('close-calendar').onclick=()=>$('calendar-dialog').close();$('calendar-today').onclick=()=>pickDate(C.dateKey(Date.now()));$('previous-month').onclick=()=>{calendarMonth.setMonth(calendarMonth.getMonth()-1);renderCalendar();};$('next-month').onclick=()=>{calendarMonth.setMonth(calendarMonth.getMonth()+1);renderCalendar();};$('calendar-dialog').addEventListener('click',e=>{if(e.target===$('calendar-dialog')){const r=e.target.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)e.target.close();}});
   let pendingImport=null;
-  const dataDialog=$('data-dialog');
   function resetImport(){pendingImport=null;$('import-preview').hidden=true;$('import-file').value='';}
   function receiveImport(text){
     try{
@@ -38,19 +37,16 @@
       $('import-conflicts').textContent=result.conflicts?`${result.conflicts} 条记录的编号与本机记录冲突，将保留本机记录。`:'';
       $('confirm-import').disabled=result.added===0||storageError;
       $('import-preview').hidden=false;
-      if(!dataDialog.open)dataDialog.showModal();
+      navigate('settings');
     }catch(e){resetImport();toast(e.message);}
   }
   window.receiveStudyImport=receiveImport;
   window.studyFileResult=(success,message)=>toast(message);
-  $('data-button').onclick=()=>{resetImport();dataDialog.showModal();};
-  $('close-data').onclick=()=>dataDialog.close();
-  dataDialog.addEventListener('close',resetImport);
   $('cancel-import').onclick=resetImport;
   $('confirm-import').onclick=()=>{
     if(!pendingImport)return;
     const result=C.mergeRecords(state,pendingImport);
-    if(save(result.state)){resetImport();dataDialog.close();render();toast(`已导入 ${result.added} 条记录`);}
+    if(save(result.state)){resetImport();render();toast(`已导入 ${result.added} 条记录`);}
   };
   $('export-button').onclick=async ()=>{
     if(storageError){toast('无法读取现有数据，暂不能导出');return;}
