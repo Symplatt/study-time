@@ -6,6 +6,10 @@
 .data-description{font-size:12px;color:#65745c;line-height:1.8;margin:22px 0 16px}.data-actions{display:flex;gap:10px}.data-actions button{display:flex;align-items:center;justify-content:center;gap:7px}.data-actions svg{width:17px;height:17px}.data-note{font-size:11px;color:#7d8972;line-height:1.9;margin:16px 0 0}#import-preview{border-top:1px solid #dfe6d5;margin-top:20px;padding-top:16px}#import-preview h3{font-size:14px;margin:0}#import-summary{font-size:12px;line-height:1.8}#import-preview .data-actions{margin-top:16px}.date-stamp,.stats-emblem{transform:none}
 
 .settings-card{background:#fffefa;border:1px solid #e7eadf;border-radius:23px;padding:22px 18px}.data-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.data-actions button{min-width:0}
+
+.stat-card{min-width:0;display:flex;flex-direction:column;align-items:flex-start}.stat-card small{margin-top:auto;padding-top:8px;line-height:1.6}#best-card,#streak-card{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:pan-y;cursor:pointer}#best-card:focus-visible,#streak-card:focus-visible{outline:3px solid #558967;outline-offset:3px}#scope-dialog h2{font-size:18px;font-weight:500}
+
+.heatmap-card{margin-top:16px;padding:20px 16px 16px;background:#fffefa;border:1px solid #e7eadf;border-radius:23px}.heatmap-layout{display:flex;gap:7px;margin-top:20px}.heatmap-weekdays{display:grid;grid-template-rows:repeat(7,11px);gap:3px;padding-top:23px;font-size:9px;line-height:11px;color:#929c87;flex:none}.heatmap-scroll{overflow-x:auto;overflow-y:hidden;min-width:0;padding-bottom:8px;scrollbar-width:thin;scrollbar-color:#c4d5ac transparent}.heatmap-months{height:23px;position:relative;overflow:hidden}.heatmap-months span{position:absolute;font-size:9px;color:#929c87;white-space:nowrap;top:0}.heatmap-cells{display:grid;grid-template-rows:repeat(7,11px);grid-auto-columns:11px;grid-auto-flow:column;gap:3px;width:max-content;padding:2px}.heatmap-cells button,.heatmap-empty,.heatmap-legend i{width:11px;height:11px;border-radius:3px;display:block;padding:0}.heatmap-cells button{border:1px solid #526c3510}.heatmap-cells [aria-pressed=true]{outline:2px solid #304b3b;outline-offset:1px}.heatmap-cells button:focus-visible{outline-offset:1px}.heatmap-card [data-level="0"]{background:#edf0e5}.heatmap-card [data-level="1"]{background:#d4e8b4}.heatmap-card [data-level="2"]{background:#a7cc7a}.heatmap-card [data-level="3"]{background:#779f53}.heatmap-card [data-level="4"]{background:#3f6839}.heatmap-footer{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-top:12px}.heatmap-footer p{font-size:10px;color:#86917b;margin:0;line-height:1.6}.heatmap-legend{display:flex;gap:4px;align-items:center;font-size:9px;color:#929c87;margin-left:auto}.heatmap-legend i{width:9px;height:9px;border-radius:2px}
 </style></head>
 <body>
 <div class="app">
@@ -17,13 +21,14 @@
       <section class="records-section"><div class="section-heading"><h2>学习记录 <span id="record-count">0</span></h2></div><div id="record-list"></div></section>
       <p class="bottom-note"><span data-icon="shield"></span>数据仅保存在此设备</p>
     </section>
-    <section id="stats-view" hidden><div class="page-heading"><div><h1>学习统计</h1></div><span class="stats-emblem" data-icon="chart"></span></div><div class="period-tabs" role="tablist" aria-label="统计时间范围"><button role="tab" aria-selected="true" data-period="week">近一周</button><button role="tab" aria-selected="false" data-period="month">近一个月</button><button role="tab" aria-selected="false" data-period="year">近一年</button></div><section class="chart-card"><div class="section-heading"><h2>专注时长</h2><span id="chart-unit" class="muted">单位：分钟</span></div><div class="chart-total" id="stats-total"></div><p class="muted" id="stats-range"></p><div class="chart-area"><div class="chart-grid" id="chart-grid"></div><div id="chart-bars" class="chart-bars" aria-label="学习时长柱状图"></div></div><div class="chart-labels" id="chart-labels"></div><p class="chart-detail" id="chart-detail" aria-live="polite">点击柱形，查看详细记录</p></section><div class="stats-grid"><div class="stat-card"><span data-icon="sun"></span><p>日均学习</p><strong id="stats-average"></strong></div><div class="stat-card"><span data-icon="book"></span><p>专注次数</p><strong id="stats-sessions"></strong></div><div class="stat-card"><span data-icon="calendar"></span><p>学习天数</p><strong id="stats-days"></strong></div><div class="stat-card"><span data-icon="trophy"></span><p id="best-label">单日最佳</p><strong id="stats-best"></strong><small id="best-date"></small></div></div></section>
+    <section id="stats-view" hidden><div class="page-heading"><div><h1>学习统计</h1></div><span class="stats-emblem" data-icon="chart"></span></div><div class="period-tabs" role="tablist" aria-label="统计时间范围"><button role="tab" aria-selected="true" data-period="week">近一周</button><button role="tab" aria-selected="false" data-period="month">近一个月</button><button role="tab" aria-selected="false" data-period="year">近一年</button></div><section class="chart-card"><div class="section-heading"><h2>专注时长</h2><span id="chart-unit" class="muted">单位：分钟</span></div><div class="chart-total" id="stats-total"></div><p class="muted" id="stats-range"></p><div class="chart-area"><div class="chart-grid" id="chart-grid"></div><div id="chart-bars" class="chart-bars" aria-label="学习时长柱状图"></div></div><div class="chart-labels" id="chart-labels"></div><p class="chart-detail" id="chart-detail" aria-live="polite">点击柱形，查看详细记录</p></section><div class="stats-grid"><div class="stat-card"><span data-icon="sun"></span><p id="average-label">本周日均学习</p><strong id="stats-average"></strong></div><div class="stat-card"><span data-icon="book"></span><p id="sessions-label">本周专注次数</p><strong id="stats-sessions"></strong></div><div class="stat-card" id="streak-card" role="button" tabindex="0" aria-haspopup="dialog" aria-label="连续学习天数，长按选择统计范围"><span data-icon="calendar"></span><p id="streak-label">连续学习天数</p><strong id="stats-days"></strong><small id="streak-note">不中断地学习至今的天数</small></div><div class="stat-card" id="best-card" role="button" tabindex="0" aria-haspopup="dialog" aria-label="单日最佳，长按选择统计范围"><span data-icon="trophy"></span><p id="best-label">历史单日最佳</p><strong id="stats-best"></strong><small id="best-date"></small></div></div><section class="heatmap-card" aria-labelledby="heatmap-title"><div class="section-heading"><h2 id="heatmap-title">学习足迹</h2><span class="muted">近 365 天</span></div><div class="heatmap-layout"><div class="heatmap-weekdays" aria-hidden="true"><span>一</span><span></span><span>三</span><span></span><span>五</span><span></span><span>日</span></div><div class="heatmap-scroll" id="heatmap-scroll" tabindex="0" aria-label="最近365天学习热力图，可横向滚动"><div id="heatmap-months" class="heatmap-months" aria-hidden="true"></div><div id="heatmap-cells" class="heatmap-cells"></div></div></div><div class="heatmap-footer"><p id="heatmap-detail" aria-live="polite">点击方格查看当天学习时长</p><div class="heatmap-legend" aria-label="颜色从浅到深：未学习、少于30分钟、30分钟至1小时、1至2小时、2小时及以上"><span>少</span><i data-level="0"></i><i data-level="1"></i><i data-level="2"></i><i data-level="3"></i><i data-level="4"></i><span>多</span></div></div></section></section>
     <section id="settings-view" hidden aria-labelledby="settings-title"><div class="page-heading"><h1 id="settings-title">设置</h1><span class="stats-emblem" data-icon="settings"></span></div><section class="settings-card" aria-labelledby="data-title"><div class="section-heading"><h2 id="data-title">数据管理</h2></div><p class="data-description">导出将 JSON 数据复制到剪切板；导入前请先复制备份内容，再点击导入数据。</p><div class="data-actions"><button id="export-button" class="full-button"><span data-icon="upload"></span>导出数据</button><button id="import-button" class="full-button"><span data-icon="download"></span>导入数据</button></div><p class="data-note">仅导出已结束的记录；进行中的计时请先结束。导入会合并记录，重复项不会重复添加。</p><section id="import-preview" hidden><h3>导入预览</h3><p id="import-summary"></p><p class="data-note" id="import-conflicts"></p><div class="data-actions"><button id="cancel-import" class="full-button secondary">取消</button><button id="confirm-import" class="full-button">确认导入</button></div></section></section></section>
   </main>
   <nav class="bottom-nav" aria-label="主导航"><button class="active" id="nav-home" aria-current="page"><span data-icon="home"></span><span>首页</span></button><button id="nav-stats"><span data-icon="chart"></span><span>视图</span></button><button id="nav-settings"><span data-icon="settings"></span><span>设置</span></button></nav>
 </div>
 <dialog id="calendar-dialog"><div class="dialog-heading"><div><h2>选择日期</h2></div><button class="icon-button" id="close-calendar" aria-label="关闭日期选择"><span data-icon="close"></span></button></div><div class="month-nav"><button class="icon-button" id="previous-month" aria-label="上个月">‹</button><strong id="calendar-month"></strong><button class="icon-button" id="next-month" aria-label="下个月">›</button></div><div class="weekdays"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div><div id="calendar-days" class="calendar-days"></div><p class="calendar-hint"><i></i>有学习记录的日期</p><button id="calendar-today" class="full-button">查看今天</button></dialog>
 
+<dialog id="scope-dialog" aria-labelledby="scope-title"><div class="dialog-heading"><h2 id="scope-title">统计范围</h2><button class="icon-button" id="close-scope" aria-label="关闭"><span data-icon="close"></span></button></div><p id="scope-option" class="data-description"></p><div class="data-actions"><button id="cancel-scope" class="full-button secondary">取消</button><button id="confirm-scope" class="full-button">确定</button></div></dialog>
 <div id="toast" role="status" hidden></div>
 <script>(function (root) {
   'use strict';
@@ -71,10 +76,21 @@
       return {key:period === 'year'?key.slice(0,7):key,ms:0,count:0,label:period === 'year'?`${date.getMonth()+1}月`:`${date.getMonth()+1}/${date.getDate()}`};
     });
     const start = period === 'year' ? `${result[0].key}-01` : result[0].key;
-    const validRows = rows(state,now).filter(r=>r.date>=start && r.date<=dateKey(now));
+    const allRows = rows(state,now);
+    const validRows = allRows.filter(r=>r.date>=start && r.date<=dateKey(now));
     for (const row of validRows) {const b=result.find(b=>b.key===(period==='year'?row.date.slice(0,7):row.date));if(b){b.ms+=row.ms;b.count++;}}
     const days = Math.round((today-localDate(start))/86400000)+1;
-    return {buckets:result,total:validRows.reduce((n,r)=>n+r.ms,0),sessions:new Set(validRows.map(r=>r.id)).size,activeDays:new Set(validRows.filter(r=>r.ms>0).map(r=>r.date)).size,days};
+    // Aggregate by local calendar day before finding the best, including year view.
+    const daily = new Map();
+    for(const row of allRows)if(row.date<=dateKey(now)&&row.ms>0)daily.set(row.date,(daily.get(row.date)||0)+row.ms);
+    const cursor = new Date(today);let streak=0;
+    while(daily.has(dateKey(cursor))){streak++;cursor.setDate(cursor.getDate()-1);}
+    const best = from => [...daily].filter(([key])=>key>=from).reduce((best,[key,ms])=>ms>best.ms||(ms===best.ms&&key<best.key)?{key,ms}:best,{key:'',ms:0});
+    const heatmap=Array.from({length:365},(_,i)=>{
+      const d=new Date(today);d.setDate(d.getDate()-(364-i));const key=dateKey(d),ms=daily.get(key)||0;
+      return {key,ms,level:ms===0?0:ms<1800000?1:ms<3600000?2:ms<7200000?3:4};
+    });
+    return {heatmap,streak,historyBest:best(''),periodBest:best(start),buckets:result,total:validRows.reduce((n,r)=>n+r.ms,0),sessions:new Set(validRows.map(r=>r.id)).size,activeDays:new Set(validRows.filter(r=>r.ms>0).map(r=>r.date)).size,days};
   }
   function validState(s) {
     const segment = p => Array.isArray(p)&&p.length===2&&p.every(Number.isFinite)&&p[1]>=p[0];
@@ -138,7 +154,25 @@
   const clockTime=ms=>new Date(ms).toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit',hour12:false});
   function renderTimer(){const now=Date.now(),a=state.active,s=Math.floor(C.duration(a,now)/1000);$('timer-digits').textContent=[Math.floor(s/3600),Math.floor(s/60)%60,s%60].map(n=>String(n).padStart(2,'0')).join(':');$('start-button').disabled=!!a||storageError;$('pause-button').disabled=!a;$('finish-button').disabled=!a;$('pause-label').textContent=a&&a.since===null?'继续':'暂停';$('pause-button').firstElementChild.innerHTML=icon(a&&a.since===null?'play':'pause');$('timer-state').innerHTML=`<i></i>${!a?'准备开始':a.since===null?'已暂停':'正在专注'}`;document.querySelector('.timer-card').classList.toggle('running',!!a&&a.since!==null);}
   function renderHome(){const today=C.dateKey(Date.now()),d=C.localDate(selected);$('date-title').textContent=`${d.getMonth()+1}月${d.getDate()}日`;$('date-caption').textContent=`${d.getFullYear()}年 · ${d.toLocaleDateString('zh-CN',{weekday:'long'})}${selected===today?' · 今天':''}`;$('date-stamp').textContent=selected===today?'今日':'回顾';$('today-button').hidden=selected===today;$('date-stamp').hidden=selected!==today;const rows=C.rows(state,Date.now()).filter(r=>r.date===selected).sort((a,b)=>b.start-a.start);$('day-total').innerHTML=totalHTML(rows.reduce((n,r)=>n+r.ms,0));$('day-count').textContent=rows.length;$('record-count').textContent=rows.length;$('record-list').innerHTML=rows.length?rows.map((r,i)=>`<article class="record"><span class="record-icon">${icon(r.active?'leaf':'book')}</span><div><h3 class="record-title">${r.active?'本次专注':`第 ${rows.length-i} 次专注`}</h3><span class="record-time">${clockTime(r.start)} — ${r.active?(state.active.since===null?'已暂停':'进行中'):clockTime(r.end)}${C.dateKey(r.end)!==r.date?' · 跨日':''}</span></div><div class="record-duration">${shortDuration(r.ms)}<small>${r.active?'尚未结束':'已完成'}</small></div></article>`).join(''):`<div class="empty-state">${icon('book')}<h3>暂无学习记录</h3>${selected===today?'<p>点击「开始」计时</p>':''}</div>`;renderTimer();}
-  function renderStats(){const data=C.buckets(state,period,Date.now()), bs=data.buckets;const max=Math.max(...bs.map(b=>b.ms)),unit=max>=7200000?3600000:60000;const ceiling=Math.max(1,Math.ceil(max/unit/4))*4;$('chart-unit').textContent=`单位：${unit===3600000?'小时':'分钟'}`;$('stats-total').innerHTML=totalHTML(data.total);$('stats-range').textContent=`${bs[0].key.replaceAll('-','.')} — ${C.dateKey(Date.now()).replaceAll('-','.')} · ${period==='year'?'近 12 个月':`近 ${data.days} 天`}`;$('chart-grid').innerHTML=[ceiling,ceiling/2,0].map(v=>`<div><span>${v}</span></div>`).join('');$('chart-bars').classList.toggle('dense',period==='month');$('chart-bars').innerHTML=bs.map((b,i)=>`<button class="bar" data-bucket="${i}" aria-label="${b.key}，${shortDuration(b.ms)}" aria-pressed="false"><span class="bar-fill" style="height:${b.ms/unit/ceiling*100}%"></span></button>`).join('');$('chart-labels').innerHTML=bs.map((b,i)=>`<span>${period==='month'&&![0,7,14,21,29].includes(i)?'':period==='year'?b.label.replace('月',''):b.label}</span>`).join('');$('chart-detail').textContent=data.total?'点击柱形，查看详细记录':'暂无学习记录';$('chart-bars').querySelectorAll('button').forEach(button=>button.onclick=()=>{document.querySelectorAll('.bar').forEach(b=>{b.classList.remove('selected');b.setAttribute('aria-pressed','false');});button.classList.add('selected');button.setAttribute('aria-pressed','true');const b=bs[Number(button.dataset.bucket)];$('chart-detail').textContent=`${b.key} · ${shortDuration(b.ms)}`;});$('stats-average').textContent=shortDuration(data.total/data.days);$('stats-sessions').textContent=`${data.sessions} 次`;$('stats-days').textContent=`${data.activeDays} 天`;const best=bs.reduce((a,b)=>b.ms>a.ms?b:a,bs[0]);$('best-label').textContent=period==='year'?'单月最佳':'单日最佳';$('stats-best').textContent=shortDuration(best.ms);$('best-date').textContent=best.ms?best.key:'暂无记录';}
+  function renderStats(){const data=C.buckets(state,period,Date.now()), bs=data.buckets;const max=Math.max(...bs.map(b=>b.ms)),unit=max>=7200000?3600000:60000;const ceiling=Math.max(1,Math.ceil(max/unit/4))*4;$('chart-unit').textContent=`单位：${unit===3600000?'小时':'分钟'}`;$('stats-total').innerHTML=totalHTML(data.total);$('stats-range').textContent=`${bs[0].key.replaceAll('-','.')} — ${C.dateKey(Date.now()).replaceAll('-','.')} · ${period==='year'?'近 12 个月':`近 ${data.days} 天`}`;$('chart-grid').innerHTML=[ceiling,ceiling/2,0].map(v=>`<div><span>${v}</span></div>`).join('');$('chart-bars').classList.toggle('dense',period==='month');$('chart-bars').innerHTML=bs.map((b,i)=>`<button class="bar" data-bucket="${i}" aria-label="${b.key}，${shortDuration(b.ms)}" aria-pressed="false"><span class="bar-fill" style="height:${b.ms/unit/ceiling*100}%"></span></button>`).join('');$('chart-labels').innerHTML=bs.map((b,i)=>`<span>${period==='month'&&![0,7,14,21,29].includes(i)?'':period==='year'?b.label.replace('月',''):b.label}</span>`).join('');$('chart-detail').textContent=data.total?'点击柱形，查看详细记录':'暂无学习记录';$('chart-bars').querySelectorAll('button').forEach(button=>button.onclick=()=>{document.querySelectorAll('.bar').forEach(b=>{b.classList.remove('selected');b.setAttribute('aria-pressed','false');});button.classList.add('selected');button.setAttribute('aria-pressed','true');const b=bs[Number(button.dataset.bucket)];$('chart-detail').textContent=`${b.key} · ${shortDuration(b.ms)}`;});const scope={week:'本周',month:'本月',year:'本年'}[period];$('average-label').textContent=`${scope}日均学习`;$('sessions-label').textContent=`${scope}专注次数`;$('stats-average').textContent=shortDuration(data.total/data.days);$('stats-sessions').textContent=`${data.sessions} 次`;$('stats-days').textContent=`${state.streakScope==='period'?Math.min(data.streak,data.days):data.streak} 天`;$('streak-label').textContent=state.streakScope==='period'?`${scope}连续学习天数`:'连续学习天数';$('streak-note').textContent=state.streakScope==='period'?'本次统计周期内不中断地学习至今的天数':'不中断地学习至今的天数';const best=state.bestScope==='period'?data.periodBest:data.historyBest;$('best-label').textContent=state.bestScope==='period'?`${scope}单日最佳`:'历史单日最佳';$('stats-best').textContent=shortDuration(best.ms);$('best-date').textContent=best.ms?best.key:'暂无记录';renderHeatmap(data.heatmap);}
+  let heatmapSignature='',heatmapSelected='';
+  function renderHeatmap(days){
+    const signature=days.map(d=>`${d.key}:${d.ms}`).join('|');
+    if(signature===heatmapSignature)return;
+    const firstRender=!heatmapSignature;heatmapSignature=signature;
+    const offset=(C.localDate(days[0].key).getDay()+6)%7,columns=Math.ceil((offset+days.length)/7);
+    $('heatmap-months').style.width=`${columns*14-3}px`;
+    $('heatmap-months').innerHTML=days.map((d,i)=>d.key.endsWith('-01')?`<span style="left:${Math.floor((offset+i)/7)*14}px">${Number(d.key.slice(5,7))}月</span>`:'').join('');
+    $('heatmap-cells').innerHTML='<span class="heatmap-empty"></span>'.repeat(offset)+days.map(d=>`<button data-date="${d.key}" data-level="${d.level}" aria-label="${d.key}，${shortDuration(d.ms)}" aria-pressed="${d.key===heatmapSelected}" title="${d.key} · ${shortDuration(d.ms)}"></button>`).join('');
+    function showDay(d){$('heatmap-detail').textContent=`${d.key} · ${shortDuration(d.ms)}`;}
+    $('heatmap-cells').querySelectorAll('button').forEach(button=>button.onclick=()=>{
+      heatmapSelected=button.dataset.date;
+      $('heatmap-cells').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));
+      showDay(days.find(d=>d.key===heatmapSelected));
+    });
+    const selectedDay=days.find(d=>d.key===heatmapSelected);if(selectedDay)showDay(selectedDay);
+    if(firstRender)$('heatmap-scroll').scrollLeft=$('heatmap-scroll').scrollWidth;
+  }
   function render(){renderHome();if(view==='stats')renderStats();}
   $('start-button').onclick=()=>{if(save(C.start(state,Date.now()))){selected=C.dateKey(Date.now());render();toast('专注已开始，锁屏后仍会继续计时');}};
   $('pause-button').onclick=()=>{if(save(C.toggle(state,Date.now())))render();};
@@ -146,6 +180,34 @@
   function navigate(next){view=next;$('home-view').hidden=next!=='home';$('stats-view').hidden=next!=='stats';$('settings-view').hidden=next!=='settings';for(const item of ['home','stats','settings']){const b=$(`nav-${item}`);b.classList.toggle('active',next===item);if(next===item)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');}if(next==='stats')renderStats();else renderHome();window.scrollTo(0,0);}
   $('nav-home').onclick=()=>navigate('home');$('nav-stats').onclick=()=>navigate('stats');$('nav-settings').onclick=()=>navigate('settings');
   document.querySelectorAll('[data-period]').forEach(b=>b.onclick=()=>{period=b.dataset.period;document.querySelectorAll('[data-period]').forEach(x=>x.setAttribute('aria-selected',String(x===b)));renderStats();});
+  const scopeDialog=$('scope-dialog');let scopeField='bestScope';
+  function openScopeOptions(field){
+    scopeField=field;
+    const streak=field==='streakScope',inPeriod=state[field]==='period';
+    $('scope-title').textContent=streak?'连续学习天数范围':'最佳数据范围';
+    $('scope-option').textContent=streak?(inPeriod?'改为呈现全部历史中不间断学习至今的天数':'改为呈现本次统计周期内不间断学习至今的天数'):(inPeriod?'改为呈现历史最佳数据':'改为呈现本次统计周期的最佳数据');
+    if(!scopeDialog.open)scopeDialog.showModal();
+  }
+  function bindScopePress(card,field){
+    let press=null;
+    function cancel(){if(press)clearTimeout(press.timer);press=null;}
+    card.addEventListener('pointerdown',event=>{
+      cancel();if(!event.isPrimary||event.button!==0)return;
+      press={x:event.clientX,y:event.clientY,timer:setTimeout(()=>{cancel();openScopeOptions(field);},550)};
+    });
+    card.addEventListener('pointermove',event=>{if(press&&Math.hypot(event.clientX-press.x,event.clientY-press.y)>10)cancel();});
+    for(const type of ['pointerup','pointercancel','pointerleave'])card.addEventListener(type,cancel);
+    window.addEventListener('blur',cancel);
+    window.addEventListener('scroll',cancel,true);
+    card.addEventListener('contextmenu',event=>{event.preventDefault();cancel();openScopeOptions(field);});
+    card.addEventListener('keydown',event=>{if(['Enter',' ','ContextMenu'].includes(event.key)){event.preventDefault();openScopeOptions(field);}});
+  }
+  bindScopePress($('best-card'),'bestScope');
+  bindScopePress($('streak-card'),'streakScope');
+  $('close-scope').onclick=$('cancel-scope').onclick=()=>scopeDialog.close();
+  $('confirm-scope').onclick=()=>{
+    if(save({...state,[scopeField]:state[scopeField]==='period'?'history':'period'})){scopeDialog.close();renderStats();}
+  };
   function pickDate(key){selected=key;renderHome();$('calendar-dialog').close();}
   $('today-button').onclick=()=>pickDate(C.dateKey(Date.now()));
   function renderCalendar(){const y=calendarMonth.getFullYear(),m=calendarMonth.getMonth(),offset=(new Date(y,m,1).getDay()+6)%7,count=new Date(y,m+1,0).getDate(),today=C.dateKey(Date.now()),recorded=new Set(C.rows(state,Date.now()).map(r=>r.date));$('calendar-month').textContent=`${y}年 ${m+1}月`;$('next-month').disabled=y===new Date().getFullYear()&&m===new Date().getMonth();$('calendar-days').innerHTML='<span></span>'.repeat(offset)+Array.from({length:count},(_,i)=>{const key=C.dateKey(new Date(y,m,i+1));return `<button data-date="${key}" class="${key===selected?'selected ':''}${key===today?'today ':''}${recorded.has(key)?'has-record':''}" ${key>today?'disabled':''} aria-label="${key}${recorded.has(key)?'，有学习记录':''}" aria-pressed="${key===selected}">${i+1}</button>`;}).join('');$('calendar-days').querySelectorAll('button').forEach(b=>b.onclick=()=>pickDate(b.dataset.date));}
@@ -193,7 +255,7 @@
     }catch(e){toast('读取失败，请检查剪切板权限后重试');}
   };
   window.addEventListener('storage',()=>{state=read();render();});document.addEventListener('visibilitychange',()=>{if(!document.hidden)render();});
-  setInterval(()=>{const today=C.dateKey(Date.now());if(today!==lastToday){if(selected===lastToday)selected=today;lastToday=today;render();}else if(state.active&&view==='home')renderHome();},1000);
+  setInterval(()=>{const today=C.dateKey(Date.now());if(today!==lastToday){if(selected===lastToday)selected=today;lastToday=today;render();}else if(state.active){if(view==='home')renderHome();else if(view==='stats')renderStats();}},1000);
   render();if(storageError)toast('无法读取记录，请重新打开应用；原始数据未被覆盖');
 })();
 </script>

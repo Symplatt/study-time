@@ -15,7 +15,25 @@
   const clockTime=ms=>new Date(ms).toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit',hour12:false});
   function renderTimer(){const now=Date.now(),a=state.active,s=Math.floor(C.duration(a,now)/1000);$('timer-digits').textContent=[Math.floor(s/3600),Math.floor(s/60)%60,s%60].map(n=>String(n).padStart(2,'0')).join(':');$('start-button').disabled=!!a||storageError;$('pause-button').disabled=!a;$('finish-button').disabled=!a;$('pause-label').textContent=a&&a.since===null?'继续':'暂停';$('pause-button').firstElementChild.innerHTML=icon(a&&a.since===null?'play':'pause');$('timer-state').innerHTML=`<i></i>${!a?'准备开始':a.since===null?'已暂停':'正在专注'}`;document.querySelector('.timer-card').classList.toggle('running',!!a&&a.since!==null);}
   function renderHome(){const today=C.dateKey(Date.now()),d=C.localDate(selected);$('date-title').textContent=`${d.getMonth()+1}月${d.getDate()}日`;$('date-caption').textContent=`${d.getFullYear()}年 · ${d.toLocaleDateString('zh-CN',{weekday:'long'})}${selected===today?' · 今天':''}`;$('date-stamp').textContent=selected===today?'今日':'回顾';$('today-button').hidden=selected===today;$('date-stamp').hidden=selected!==today;const rows=C.rows(state,Date.now()).filter(r=>r.date===selected).sort((a,b)=>b.start-a.start);$('day-total').innerHTML=totalHTML(rows.reduce((n,r)=>n+r.ms,0));$('day-count').textContent=rows.length;$('record-count').textContent=rows.length;$('record-list').innerHTML=rows.length?rows.map((r,i)=>`<article class="record"><span class="record-icon">${icon(r.active?'leaf':'book')}</span><div><h3 class="record-title">${r.active?'本次专注':`第 ${rows.length-i} 次专注`}</h3><span class="record-time">${clockTime(r.start)} — ${r.active?(state.active.since===null?'已暂停':'进行中'):clockTime(r.end)}${C.dateKey(r.end)!==r.date?' · 跨日':''}</span></div><div class="record-duration">${shortDuration(r.ms)}<small>${r.active?'尚未结束':'已完成'}</small></div></article>`).join(''):`<div class="empty-state">${icon('book')}<h3>暂无学习记录</h3>${selected===today?'<p>点击「开始」计时</p>':''}</div>`;renderTimer();}
-  function renderStats(){const data=C.buckets(state,period,Date.now()), bs=data.buckets;const max=Math.max(...bs.map(b=>b.ms)),unit=max>=7200000?3600000:60000;const ceiling=Math.max(1,Math.ceil(max/unit/4))*4;$('chart-unit').textContent=`单位：${unit===3600000?'小时':'分钟'}`;$('stats-total').innerHTML=totalHTML(data.total);$('stats-range').textContent=`${bs[0].key.replaceAll('-','.')} — ${C.dateKey(Date.now()).replaceAll('-','.')} · ${period==='year'?'近 12 个月':`近 ${data.days} 天`}`;$('chart-grid').innerHTML=[ceiling,ceiling/2,0].map(v=>`<div><span>${v}</span></div>`).join('');$('chart-bars').classList.toggle('dense',period==='month');$('chart-bars').innerHTML=bs.map((b,i)=>`<button class="bar" data-bucket="${i}" aria-label="${b.key}，${shortDuration(b.ms)}" aria-pressed="false"><span class="bar-fill" style="height:${b.ms/unit/ceiling*100}%"></span></button>`).join('');$('chart-labels').innerHTML=bs.map((b,i)=>`<span>${period==='month'&&![0,7,14,21,29].includes(i)?'':period==='year'?b.label.replace('月',''):b.label}</span>`).join('');$('chart-detail').textContent=data.total?'点击柱形，查看详细记录':'暂无学习记录';$('chart-bars').querySelectorAll('button').forEach(button=>button.onclick=()=>{document.querySelectorAll('.bar').forEach(b=>{b.classList.remove('selected');b.setAttribute('aria-pressed','false');});button.classList.add('selected');button.setAttribute('aria-pressed','true');const b=bs[Number(button.dataset.bucket)];$('chart-detail').textContent=`${b.key} · ${shortDuration(b.ms)}`;});$('stats-average').textContent=shortDuration(data.total/data.days);$('stats-sessions').textContent=`${data.sessions} 次`;$('stats-days').textContent=`${data.activeDays} 天`;const best=bs.reduce((a,b)=>b.ms>a.ms?b:a,bs[0]);$('best-label').textContent=period==='year'?'单月最佳':'单日最佳';$('stats-best').textContent=shortDuration(best.ms);$('best-date').textContent=best.ms?best.key:'暂无记录';}
+  function renderStats(){const data=C.buckets(state,period,Date.now()), bs=data.buckets;const max=Math.max(...bs.map(b=>b.ms)),unit=max>=7200000?3600000:60000;const ceiling=Math.max(1,Math.ceil(max/unit/4))*4;$('chart-unit').textContent=`单位：${unit===3600000?'小时':'分钟'}`;$('stats-total').innerHTML=totalHTML(data.total);$('stats-range').textContent=`${bs[0].key.replaceAll('-','.')} — ${C.dateKey(Date.now()).replaceAll('-','.')} · ${period==='year'?'近 12 个月':`近 ${data.days} 天`}`;$('chart-grid').innerHTML=[ceiling,ceiling/2,0].map(v=>`<div><span>${v}</span></div>`).join('');$('chart-bars').classList.toggle('dense',period==='month');$('chart-bars').innerHTML=bs.map((b,i)=>`<button class="bar" data-bucket="${i}" aria-label="${b.key}，${shortDuration(b.ms)}" aria-pressed="false"><span class="bar-fill" style="height:${b.ms/unit/ceiling*100}%"></span></button>`).join('');$('chart-labels').innerHTML=bs.map((b,i)=>`<span>${period==='month'&&![0,7,14,21,29].includes(i)?'':period==='year'?b.label.replace('月',''):b.label}</span>`).join('');$('chart-detail').textContent=data.total?'点击柱形，查看详细记录':'暂无学习记录';$('chart-bars').querySelectorAll('button').forEach(button=>button.onclick=()=>{document.querySelectorAll('.bar').forEach(b=>{b.classList.remove('selected');b.setAttribute('aria-pressed','false');});button.classList.add('selected');button.setAttribute('aria-pressed','true');const b=bs[Number(button.dataset.bucket)];$('chart-detail').textContent=`${b.key} · ${shortDuration(b.ms)}`;});const scope={week:'本周',month:'本月',year:'本年'}[period];$('average-label').textContent=`${scope}日均学习`;$('sessions-label').textContent=`${scope}专注次数`;$('stats-average').textContent=shortDuration(data.total/data.days);$('stats-sessions').textContent=`${data.sessions} 次`;$('stats-days').textContent=`${state.streakScope==='period'?Math.min(data.streak,data.days):data.streak} 天`;$('streak-label').textContent=state.streakScope==='period'?`${scope}连续学习天数`:'连续学习天数';$('streak-note').textContent=state.streakScope==='period'?'本次统计周期内不中断地学习至今的天数':'不中断地学习至今的天数';const best=state.bestScope==='period'?data.periodBest:data.historyBest;$('best-label').textContent=state.bestScope==='period'?`${scope}单日最佳`:'历史单日最佳';$('stats-best').textContent=shortDuration(best.ms);$('best-date').textContent=best.ms?best.key:'暂无记录';renderHeatmap(data.heatmap);}
+  let heatmapSignature='',heatmapSelected='';
+  function renderHeatmap(days){
+    const signature=days.map(d=>`${d.key}:${d.ms}`).join('|');
+    if(signature===heatmapSignature)return;
+    const firstRender=!heatmapSignature;heatmapSignature=signature;
+    const offset=(C.localDate(days[0].key).getDay()+6)%7,columns=Math.ceil((offset+days.length)/7);
+    $('heatmap-months').style.width=`${columns*14-3}px`;
+    $('heatmap-months').innerHTML=days.map((d,i)=>d.key.endsWith('-01')?`<span style="left:${Math.floor((offset+i)/7)*14}px">${Number(d.key.slice(5,7))}月</span>`:'').join('');
+    $('heatmap-cells').innerHTML='<span class="heatmap-empty"></span>'.repeat(offset)+days.map(d=>`<button data-date="${d.key}" data-level="${d.level}" aria-label="${d.key}，${shortDuration(d.ms)}" aria-pressed="${d.key===heatmapSelected}" title="${d.key} · ${shortDuration(d.ms)}"></button>`).join('');
+    function showDay(d){$('heatmap-detail').textContent=`${d.key} · ${shortDuration(d.ms)}`;}
+    $('heatmap-cells').querySelectorAll('button').forEach(button=>button.onclick=()=>{
+      heatmapSelected=button.dataset.date;
+      $('heatmap-cells').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));
+      showDay(days.find(d=>d.key===heatmapSelected));
+    });
+    const selectedDay=days.find(d=>d.key===heatmapSelected);if(selectedDay)showDay(selectedDay);
+    if(firstRender)$('heatmap-scroll').scrollLeft=$('heatmap-scroll').scrollWidth;
+  }
   function render(){renderHome();if(view==='stats')renderStats();}
   $('start-button').onclick=()=>{if(save(C.start(state,Date.now()))){selected=C.dateKey(Date.now());render();toast('专注已开始，锁屏后仍会继续计时');}};
   $('pause-button').onclick=()=>{if(save(C.toggle(state,Date.now())))render();};
@@ -23,6 +41,34 @@
   function navigate(next){view=next;$('home-view').hidden=next!=='home';$('stats-view').hidden=next!=='stats';$('settings-view').hidden=next!=='settings';for(const item of ['home','stats','settings']){const b=$(`nav-${item}`);b.classList.toggle('active',next===item);if(next===item)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');}if(next==='stats')renderStats();else renderHome();window.scrollTo(0,0);}
   $('nav-home').onclick=()=>navigate('home');$('nav-stats').onclick=()=>navigate('stats');$('nav-settings').onclick=()=>navigate('settings');
   document.querySelectorAll('[data-period]').forEach(b=>b.onclick=()=>{period=b.dataset.period;document.querySelectorAll('[data-period]').forEach(x=>x.setAttribute('aria-selected',String(x===b)));renderStats();});
+  const scopeDialog=$('scope-dialog');let scopeField='bestScope';
+  function openScopeOptions(field){
+    scopeField=field;
+    const streak=field==='streakScope',inPeriod=state[field]==='period';
+    $('scope-title').textContent=streak?'连续学习天数范围':'最佳数据范围';
+    $('scope-option').textContent=streak?(inPeriod?'改为呈现全部历史中不间断学习至今的天数':'改为呈现本次统计周期内不间断学习至今的天数'):(inPeriod?'改为呈现历史最佳数据':'改为呈现本次统计周期的最佳数据');
+    if(!scopeDialog.open)scopeDialog.showModal();
+  }
+  function bindScopePress(card,field){
+    let press=null;
+    function cancel(){if(press)clearTimeout(press.timer);press=null;}
+    card.addEventListener('pointerdown',event=>{
+      cancel();if(!event.isPrimary||event.button!==0)return;
+      press={x:event.clientX,y:event.clientY,timer:setTimeout(()=>{cancel();openScopeOptions(field);},550)};
+    });
+    card.addEventListener('pointermove',event=>{if(press&&Math.hypot(event.clientX-press.x,event.clientY-press.y)>10)cancel();});
+    for(const type of ['pointerup','pointercancel','pointerleave'])card.addEventListener(type,cancel);
+    window.addEventListener('blur',cancel);
+    window.addEventListener('scroll',cancel,true);
+    card.addEventListener('contextmenu',event=>{event.preventDefault();cancel();openScopeOptions(field);});
+    card.addEventListener('keydown',event=>{if(['Enter',' ','ContextMenu'].includes(event.key)){event.preventDefault();openScopeOptions(field);}});
+  }
+  bindScopePress($('best-card'),'bestScope');
+  bindScopePress($('streak-card'),'streakScope');
+  $('close-scope').onclick=$('cancel-scope').onclick=()=>scopeDialog.close();
+  $('confirm-scope').onclick=()=>{
+    if(save({...state,[scopeField]:state[scopeField]==='period'?'history':'period'})){scopeDialog.close();renderStats();}
+  };
   function pickDate(key){selected=key;renderHome();$('calendar-dialog').close();}
   $('today-button').onclick=()=>pickDate(C.dateKey(Date.now()));
   function renderCalendar(){const y=calendarMonth.getFullYear(),m=calendarMonth.getMonth(),offset=(new Date(y,m,1).getDay()+6)%7,count=new Date(y,m+1,0).getDate(),today=C.dateKey(Date.now()),recorded=new Set(C.rows(state,Date.now()).map(r=>r.date));$('calendar-month').textContent=`${y}年 ${m+1}月`;$('next-month').disabled=y===new Date().getFullYear()&&m===new Date().getMonth();$('calendar-days').innerHTML='<span></span>'.repeat(offset)+Array.from({length:count},(_,i)=>{const key=C.dateKey(new Date(y,m,i+1));return `<button data-date="${key}" class="${key===selected?'selected ':''}${key===today?'today ':''}${recorded.has(key)?'has-record':''}" ${key>today?'disabled':''} aria-label="${key}${recorded.has(key)?'，有学习记录':''}" aria-pressed="${key===selected}">${i+1}</button>`;}).join('');$('calendar-days').querySelectorAll('button').forEach(b=>b.onclick=()=>pickDate(b.dataset.date));}
@@ -70,6 +116,6 @@
     }catch(e){toast('读取失败，请检查剪切板权限后重试');}
   };
   window.addEventListener('storage',()=>{state=read();render();});document.addEventListener('visibilitychange',()=>{if(!document.hidden)render();});
-  setInterval(()=>{const today=C.dateKey(Date.now());if(today!==lastToday){if(selected===lastToday)selected=today;lastToday=today;render();}else if(state.active&&view==='home')renderHome();},1000);
+  setInterval(()=>{const today=C.dateKey(Date.now());if(today!==lastToday){if(selected===lastToday)selected=today;lastToday=today;render();}else if(state.active){if(view==='home')renderHome();else if(view==='stats')renderStats();}},1000);
   render();if(storageError)toast('无法读取记录，请重新打开应用；原始数据未被覆盖');
 })();

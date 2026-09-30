@@ -44,10 +44,21 @@
       return {key:period === 'year'?key.slice(0,7):key,ms:0,count:0,label:period === 'year'?`${date.getMonth()+1}月`:`${date.getMonth()+1}/${date.getDate()}`};
     });
     const start = period === 'year' ? `${result[0].key}-01` : result[0].key;
-    const validRows = rows(state,now).filter(r=>r.date>=start && r.date<=dateKey(now));
+    const allRows = rows(state,now);
+    const validRows = allRows.filter(r=>r.date>=start && r.date<=dateKey(now));
     for (const row of validRows) {const b=result.find(b=>b.key===(period==='year'?row.date.slice(0,7):row.date));if(b){b.ms+=row.ms;b.count++;}}
     const days = Math.round((today-localDate(start))/86400000)+1;
-    return {buckets:result,total:validRows.reduce((n,r)=>n+r.ms,0),sessions:new Set(validRows.map(r=>r.id)).size,activeDays:new Set(validRows.filter(r=>r.ms>0).map(r=>r.date)).size,days};
+    // Aggregate by local calendar day before finding the best, including year view.
+    const daily = new Map();
+    for(const row of allRows)if(row.date<=dateKey(now)&&row.ms>0)daily.set(row.date,(daily.get(row.date)||0)+row.ms);
+    const cursor = new Date(today);let streak=0;
+    while(daily.has(dateKey(cursor))){streak++;cursor.setDate(cursor.getDate()-1);}
+    const best = from => [...daily].filter(([key])=>key>=from).reduce((best,[key,ms])=>ms>best.ms||(ms===best.ms&&key<best.key)?{key,ms}:best,{key:'',ms:0});
+    const heatmap=Array.from({length:365},(_,i)=>{
+      const d=new Date(today);d.setDate(d.getDate()-(364-i));const key=dateKey(d),ms=daily.get(key)||0;
+      return {key,ms,level:ms===0?0:ms<1800000?1:ms<3600000?2:ms<7200000?3:4};
+    });
+    return {heatmap,streak,historyBest:best(''),periodBest:best(start),buckets:result,total:validRows.reduce((n,r)=>n+r.ms,0),sessions:new Set(validRows.map(r=>r.id)).size,activeDays:new Set(validRows.filter(r=>r.ms>0).map(r=>r.date)).size,days};
   }
   function validState(s) {
     const segment = p => Array.isArray(p)&&p.length===2&&p.every(Number.isFinite)&&p[1]>=p[0];
