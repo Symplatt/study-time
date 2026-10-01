@@ -12,6 +12,14 @@
 - 按每段起止时间差累计，暂停不计入；跨午夜按当地日期拆分。
 - 底部“设置”根页面并列提供数据导入、导出按钮，支持 JSON 导入导出，导出复制到剪切板，导入读取剪切板中的 JSON 并显示预览，不申请全盘存储权限。
 
+## 1.0.9 更新
+
+- 首页“学习记录”标题后的绿色次数标识上移 2px，与文字视觉居中。
+
+- 首页当日累计和学习记录在同一行从左侧依次排列，不再分散到两侧。
+- 右上角换成浅色摊开的书本与铅笔插画，保留“回到今天”。
+- Android versionCode 递增至 10，包名、签名和数据格式不变。
+
 ## 1.0.8 更新
 
 - 首页右上角增加浅色书本与小星点装饰，不新增按钮或文字。
@@ -101,13 +109,13 @@ Android 项目在 `android` 中，使用 JDK 17+、Gradle 8.14、Android SDK 35 
 本地 HTML 采用 Android 官方建议的 `loadDataWithBaseURL` 载入，禁用文件访问与外部导航；APK 未申请网络权限。
 参考：https://developer.android.com/develop/ui/views/layout/webapps/load-local-content
 
-也可完全离线构建：在项目目录运行 `./scripts/build-apk.ps1 -Sdk <SDK目录> -Jdk <JDK目录>`，脚本直接使用官方 aapt2、javac、d8、zipalign、apksigner，不依赖 Gradle 下载。输出 `dist/shishi-1.0.8.apk`。
+也可完全离线构建：在项目目录运行 `./scripts/build-apk.ps1 -Sdk <SDK目录> -Jdk <JDK目录>`，脚本直接使用官方 aapt2、javac、d8、zipalign、apksigner，不依赖 Gradle 下载。输出 `dist/shishi-1.0.9.apk`。
 
 交付 APK 为本地测试签名包，不是应用商店发布包；签名密钥保存在本项目 `.tools/debug.keystore`，后续升级需保留该密钥。
 
 ## 验证范围
 
 - 1.0.7 的 47 项自动测试已通过；本次只调整首页 HTML/CSS，计时、统计、导入导出及滑动删除逻辑保持原样。
-- 本次浏览器验证 320、360、390、520px 宽度下单行汇总及大数字展示，页面无横向溢出；历史日期下“回到今天”按钮正常。
-- APK 构建及 v2/v3 签名验证通过，已覆盖安装到连接手机（1.0.8，versionCode 9）。
+- 本次浏览器验证 320、360、390、520px 宽度下汇总左对齐、次数标识上移 2px 及大数字展示，页面无横向溢出；历史日期下“回到今天”按钮正常。
+- APK 构建及 v2/v3 签名验证通过，已覆盖安装到连接手机（1.0.9，versionCode 10）。
 - 手机仍限制电脑模拟触摸，真机手势全过程未自动验证；未主动删除手机中的真实学习记录。
