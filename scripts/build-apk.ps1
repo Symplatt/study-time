@@ -16,7 +16,7 @@ function Invoke-Checked([string]$exe,[string[]]$arguments) {
 }
 Invoke-Checked 'node' @((Join-Path $PSScriptRoot 'bundle.cjs'))
 $manifest = Get-Content (Join-Path $main 'AndroidManifest.xml') -Raw
-$manifest = $manifest.Replace('<manifest xmlns:android="http://schemas.android.com/apk/res/android">','<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.shishi.studytime" android:versionCode="10" android:versionName="1.0.9"><uses-sdk android:minSdkVersion="26" android:targetSdkVersion="35"/>')
+$manifest = $manifest.Replace('<manifest xmlns:android="http://schemas.android.com/apk/res/android">','<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.shishi.studytime" android:versionCode="11" android:versionName="1.0.10"><uses-sdk android:minSdkVersion="26" android:targetSdkVersion="35"/>')
 $manifestPath = Join-Path $scratch 'AndroidManifest.xml'
 [System.IO.File]::WriteAllText($manifestPath,$manifest)
 $resourceZip = Join-Path $scratch 'resources.zip'
@@ -34,7 +34,7 @@ $aligned=Join-Path $scratch 'aligned.apk'
 Invoke-Checked (Join-Path $buildTools 'zipalign.exe') @('-f','-p','4',$unsigned,$aligned)
 $key=Join-Path $project '.tools\debug.keystore'
 if (!(Test-Path $key)) { Invoke-Checked (Join-Path $Jdk 'bin\keytool.exe') @('-genkeypair','-keystore',$key,'-storepass','android','-keypass','android','-alias','androiddebugkey','-dname','CN=Android Debug,O=Android,C=US','-keyalg','RSA','-keysize','2048','-validity','10000') }
-$apk=Join-Path $output 'shishi-1.0.9.apk'
+$apk=Join-Path $output 'shishi-1.0.10.apk'
 Invoke-Checked (Join-Path $Jdk 'bin\java.exe') @('-jar',(Join-Path $buildTools 'lib\apksigner.jar'),'sign','--ks',$key,'--ks-pass','pass:android','--key-pass','pass:android','--out',$apk,$aligned)
 Invoke-Checked (Join-Path $Jdk 'bin\java.exe') @('-jar',(Join-Path $buildTools 'lib\apksigner.jar'),'verify','--verbose',$apk)
 Get-FileHash $apk -Algorithm SHA256 | Format-List
