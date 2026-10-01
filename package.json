@@ -1,1 +1,1 @@
-{"name":"study-time","version":"1.0.12","private":true,"scripts":{"test":"node --test tests/*.test.cjs","bundle":"node scripts/bundle.cjs","start":"node scripts/serve.cjs"}}
+{"name":"study-time","version":"1.0.13","private":true,"scripts":{"test":"node --test tests/*.test.cjs","bundle":"node scripts/bundle.cjs","start":"node scripts/serve.cjs"}}

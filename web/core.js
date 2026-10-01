@@ -2,6 +2,8 @@
   'use strict';
   const dateKey = (time) => { const d = new Date(time); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
   const localDate = key => new Date(`${key}T00:00:00`);
+  // Use wall-clock dates so daylight-saving changes still switch at local 04:00.
+  const studyDateKey = time => { const d=new Date(time); if(d.getHours()<4)d.setDate(d.getDate()-1); return dateKey(d); };
   const initial = () => ({version:1, records:[], active:null});
   function start(state, now) {
     if (state.active) return state;
@@ -32,8 +34,9 @@
     for (const [start,end] of segments(record,now)) {
       let cursor = start;
       while (cursor < end) {
-        const d = new Date(cursor); d.setHours(24,0,0,0);
-        const edge = Math.min(end,d.getTime()), key = dateKey(cursor);
+        const key = studyDateKey(cursor), d = localDate(key);
+        d.setDate(d.getDate()+1); d.setHours(4,0,0,0);
+        const edge = Math.min(end,d.getTime());
         const row = days.get(key) || {id:record.id,date:key,ms:0,start:cursor,end:edge,active:!record.ended};
         row.ms += edge-cursor; row.end = edge; days.set(key,row); cursor = edge;
       }
@@ -42,7 +45,7 @@
   }
   const rows = (state,now) => [...state.records,...(state.active ? [state.active] : [])].flatMap(r=>split(r,now));
   function buckets(state,period,now) {
-    const today = new Date(now); today.setHours(0,0,0,0);
+    const todayKey = studyDateKey(now), today = localDate(todayKey);
     const count = period === 'week' ? 7 : period === 'month' ? 30 : 12;
     const result = Array.from({length:count},(_,i)=>{
       const date = new Date(today);
@@ -53,12 +56,12 @@
     });
     const start = period === 'year' ? `${result[0].key}-01` : result[0].key;
     const allRows = rows(state,now);
-    const validRows = allRows.filter(r=>r.date>=start && r.date<=dateKey(now));
+    const validRows = allRows.filter(r=>r.date>=start && r.date<=todayKey);
     for (const row of validRows) {const b=result.find(b=>b.key===(period==='year'?row.date.slice(0,7):row.date));if(b){b.ms+=row.ms;b.count++;}}
     const days = Math.round((today-localDate(start))/86400000)+1;
-    // Aggregate by local calendar day before finding the best, including year view.
+    // Aggregate by study day before finding the best, including year view.
     const daily = new Map();
-    for(const row of allRows)if(row.date<=dateKey(now)&&row.ms>0)daily.set(row.date,(daily.get(row.date)||0)+row.ms);
+    for(const row of allRows)if(row.date<=todayKey&&row.ms>0)daily.set(row.date,(daily.get(row.date)||0)+row.ms);
     const cursor = new Date(today);let streak=0;
     while(daily.has(dateKey(cursor))){streak++;cursor.setDate(cursor.getDate()-1);}
     const best = from => [...daily].filter(([key])=>key>=from).reduce((best,[key,ms])=>ms>best.ms||(ms===best.ms&&key<best.key)?{key,ms}:best,{key:'',ms:0});
@@ -110,6 +113,6 @@
     }
     return {state:{...state,records:[...state.records,...added]},added:added.length,duplicates,conflicts};
   }
-  const api = {dateKey,localDate,initial,start,toggle,finish,removeRecord,duration,ringProgress,rows,buckets,validState,exportBackup,parseBackup,mergeRecords};
+  const api = {dateKey,studyDateKey,localDate,initial,start,toggle,finish,removeRecord,duration,ringProgress,rows,buckets,validState,exportBackup,parseBackup,mergeRecords};
   if(typeof module!=='undefined') module.exports=api; else root.StudyCore=api;
 })(typeof window==='undefined'?globalThis:window);

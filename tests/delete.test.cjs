@@ -3,7 +3,7 @@ const source=fs.readFileSync(require.resolve('../web/app.js'),'utf8');
 function setup(fail=false){
  const timers=[];let clock=0;const listeners=new Map(),classes=new Set(),article={style:{}},row={style:{},getBoundingClientRect:()=>({width:200,height:75}),dataset:{recordIndex:'0'},classList:{remove(...names){names.forEach(n=>classes.delete(n));},add:n=>classes.add(n),toggle(n,on){on?classes.add(n):classes.delete(n);}},querySelector:()=>article,setPointerCapture(){},hasPointerCapture:()=>false};
  const elements={},$=id=>elements[id]??={querySelectorAll:()=>[row],addEventListener(t,f){listeners.set(id+':'+t,f);}};
- const start=new Date(2026,8,30,23,30).getTime(),end=start+3600000;
+ const start=new Date(2026,8,30,3,30).getTime(),end=start+3600000;
  let state=C.finish(C.start(C.initial(),start),end);state=C.start({...state,streakScope:'period'},end+1000);
  const context={$,C,state,window:{addEventListener(){}},render(){},toast(){},Math,setTimeout(fn,delay){timers.push({fn,delay});}};context.save=next=>{if(fail)return false;context.state=next;return true;};
  vm.runInNewContext(source.slice(source.indexOf('  let swipePress='),source.indexOf('  let heatmapSignature=')),context);

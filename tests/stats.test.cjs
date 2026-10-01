@@ -29,7 +29,7 @@ test('周期最佳随范围切换，年度仍取单日而不是整月累计',()=
 test('跨午夜的进行中计时纳入连续天数及最佳，暂停日不算学习',()=>{
   const start=new Date(2026,8,29,23,30).getTime(),end=new Date(2026,8,30,1).getTime();
   const s=C.start(C.initial(),start),d=C.buckets(s,'year',end);
-  assert.equal(d.streak,2);assert.equal(d.historyBest.ms,60*60000);assert.equal(d.historyBest.key,'2026-09-30');
+  assert.equal(d.streak,1);assert.equal(d.historyBest.ms,90*60000);assert.equal(d.historyBest.key,'2026-09-29');
 });
 test('未来日期不纳入连续天数和最佳，并列最佳固定取较早日期',()=>{
   const d=C.buckets(state([record(-1,200),record(0,20),record(1,20)]),'week',now);
