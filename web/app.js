@@ -1,7 +1,7 @@
 (() => {
   'use strict';
   const C=StudyCore, $=id=>document.getElementById(id);
-  const paths={settings:'M9 3h6l1 3 3 1 2 5-2 5-3 1-1 3H9l-1-3-3-1-2-5 2-5 3-1z M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0',database:'M20 5c0 2-16 2-16 0s16-2 16 0v14c0 2-16 2-16 0V5M4 12c0 2 16 2 16 0',download:'M12 3v12m-5-5 5 5 5-5M4 17v4h16v-4',upload:'M12 16V4m-5 5 5-5 5 5M4 17v4h16v-4',play:'m9 5 11 7-11 7z',pause:'M8 5v14M16 5v14',stop:'M6 6h12v12H6z',home:'m3 10 9-7 9 7v10H3z M9 20v-7h6v7',chart:'M4 20V10m8 10V4m8 16v-7',chevron:'m7 10 5 5 5-5',close:'m6 6 12 12M6 18 18 6',book:'M12 5C8 2 4 3 2 4v15c4-2 7-1 10 1 3-2 6-3 10-1V4c-4-2-7-1-10 1v15',clock:'M12 8v5l3 2 M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0',calendar:'M5 5h14a2 2 0 0 1 2 2v13H3V7a2 2 0 0 1 2-2 M7 3v4m10-4v4M3 10h18',leaf:'M4 20C4 8 12 3 21 3c0 12-7 16-14 13M4 20 15 9',shield:'m12 2 9 4v6c0 5-5 8-9 10-4-2-9-5-9-10V6z m-4 10 3 3 5-6',sun:'M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0 M12 1v2m0 18v2M1 12h2m18 0h2M4 4l2 2m12 12 2 2M4 20l2-2M18 6l2-2',trophy:'M7 3h10v6c0 7-10 7-10 0z M7 5H3v4c0 3 3 4 5 4m9-8h4v4c0 3-3 4-5 4M12 15v5m-5 1h10'};
+  const paths={trash:'M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7',settings:'M9 3h6l1 3 3 1 2 5-2 5-3 1-1 3H9l-1-3-3-1-2-5 2-5 3-1z M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0',database:'M20 5c0 2-16 2-16 0s16-2 16 0v14c0 2-16 2-16 0V5M4 12c0 2 16 2 16 0',download:'M12 3v12m-5-5 5 5 5-5M4 17v4h16v-4',upload:'M12 16V4m-5 5 5-5 5 5M4 17v4h16v-4',play:'m9 5 11 7-11 7z',pause:'M8 5v14M16 5v14',stop:'M6 6h12v12H6z',home:'m3 10 9-7 9 7v10H3z M9 20v-7h6v7',chart:'M4 20V10m8 10V4m8 16v-7',chevron:'m7 10 5 5 5-5',close:'m6 6 12 12M6 18 18 6',book:'M12 5C8 2 4 3 2 4v15c4-2 7-1 10 1 3-2 6-3 10-1V4c-4-2-7-1-10 1v15',clock:'M12 8v5l3 2 M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0',calendar:'M5 5h14a2 2 0 0 1 2 2v13H3V7a2 2 0 0 1 2-2 M7 3v4m10-4v4M3 10h18',leaf:'M4 20C4 8 12 3 21 3c0 12-7 16-14 13M4 20 15 9',shield:'m12 2 9 4v6c0 5-5 8-9 10-4-2-9-5-9-10V6z m-4 10 3 3 5-6',sun:'M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0 M12 1v2m0 18v2M1 12h2m18 0h2M4 4l2 2m12 12 2 2M4 20l2-2M18 6l2-2',trophy:'M7 3h10v6c0 7-10 7-10 0z M7 5H3v4c0 3 3 4 5 4m9-8h4v4c0 3-3 4-5 4M12 15v5m-5 1h10'};
   const icon=name=>`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${paths[name]||paths.clock}"/></svg>`;
   document.querySelectorAll('[data-icon]').forEach(e=>e.innerHTML=icon(e.dataset.icon));
   let storageError=false;
@@ -14,20 +14,29 @@
   const totalHTML=ms=>{if(ms>0&&ms<60000)return `<strong>${Math.floor(ms/1000)}</strong> 秒`;const m=Math.floor(ms/60000);return m>=60?`<strong>${Math.floor(m/60)}</strong> 小时 <strong>${m%60}</strong> 分钟`:`<strong>${m}</strong> 分钟`;};
   const clockTime=ms=>new Date(ms).toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit',hour12:false});
   function renderTimer(){const now=Date.now(),a=state.active,s=Math.floor(C.duration(a,now)/1000);const progress=C.ringProgress(a,now),colors=['#d4e8b4','#c3dda0','#a7cc7a','#90b663','#779f53','#608746','#4f753e','#3f6839'];$('timer-progress').style.strokeDashoffset=String(792*(1-progress.fraction));$('timer-progress').style.stroke=colors[progress.hour-1];$('timer-track').style.stroke='#e1e5dd';$('timer-orbit').setAttribute('aria-valuenow',String(progress.seconds));$('timer-orbit').setAttribute('aria-valuetext',`累计 ${Math.floor(s/3600)} 小时 ${Math.floor(s/60)%60} 分 ${s%60} 秒，${a&&a.since===null?'已暂停':a?'正在专注':'准备开始'}`);$('timer-digits').textContent=[Math.floor(s/3600),Math.floor(s/60)%60,s%60].map(n=>String(n).padStart(2,'0')).join(':');$('start-button').disabled=!!a||storageError;$('pause-button').disabled=!a;$('finish-button').disabled=!a;$('pause-label').textContent=a&&a.since===null?'继续':'暂停';$('pause-button').firstElementChild.innerHTML=icon(a&&a.since===null?'play':'pause');$('timer-state').innerHTML=`<i></i>${!a?'准备开始':a.since===null?'已暂停':'正在专注'}`;document.querySelector('.timer-card').classList.toggle('running',!!a&&a.since!==null);}
-  function renderHome(){const today=C.dateKey(Date.now()),d=C.localDate(selected);$('date-title').textContent=`${d.getMonth()+1}月${d.getDate()}日`;$('date-caption').textContent=`${d.getFullYear()}年 · ${d.toLocaleDateString('zh-CN',{weekday:'long'})}${selected===today?' · 今天':''}`;$('date-stamp').textContent=selected===today?'今日':'回顾';$('today-button').hidden=selected===today;$('date-stamp').hidden=selected!==today;const rows=C.rows(state,Date.now()).filter(r=>r.date===selected).sort((a,b)=>b.start-a.start);$('day-total').innerHTML=totalHTML(rows.reduce((n,r)=>n+r.ms,0));$('day-count').textContent=rows.length;$('record-count').textContent=rows.length;$('record-list').innerHTML=rows.length?rows.map((r,i)=>`<div class="record-swipe" ${r.active?'':`data-record-index="${state.records.findIndex(record=>record.id===r.id)}"`}><article class="record" ${r.active?'':'tabindex="0" aria-label="专注记录，左右滑动或按 Delete 删除"'}><span class="record-icon">${icon(r.active?'leaf':'book')}</span><div><h3 class="record-title">${r.active?'本次专注':`第 ${rows.length-i} 次专注`}</h3><span class="record-time">${clockTime(r.start)} — ${r.active?(state.active.since===null?'已暂停':'进行中'):clockTime(r.end)}${C.dateKey(r.end)!==r.date?' · 跨日':''}</span></div><div class="record-duration">${shortDuration(r.ms)}<small>${r.active?'尚未结束':'已完成'}</small></div></article></div>`).join(''):`<div class="empty-state">${icon('book')}<h3>暂无学习记录</h3>${selected===today?'<p>点击「开始」计时</p>':''}</div>`;renderTimer();}
+  function renderHome(){const today=C.dateKey(Date.now()),d=C.localDate(selected);$('date-title').textContent=`${d.getMonth()+1}月${d.getDate()}日`;$('date-caption').textContent=`${d.getFullYear()}年 · ${d.toLocaleDateString('zh-CN',{weekday:'long'})}${selected===today?' · 今天':''}`;$('today-button').hidden=selected===today;const rows=C.rows(state,Date.now()).filter(r=>r.date===selected).sort((a,b)=>b.start-a.start);$('day-total').innerHTML=totalHTML(rows.reduce((n,r)=>n+r.ms,0));$('day-count').textContent=rows.length;$('record-count').textContent=rows.length;$('record-list').innerHTML=rows.length?rows.map((r,i)=>`<div class="record-swipe" ${r.active?'':`data-record-index="${state.records.findIndex(record=>record.id===r.id)}"`}>${r.active?'':`<div class="swipe-background" aria-hidden="true">${icon('trash')}</div>`}<article class="record" ${r.active?'':'tabindex="0" aria-label="专注记录，左右滑动或按 Delete 删除"'}><span class="record-icon">${icon(r.active?'leaf':'book')}</span><div><h3 class="record-title">${r.active?'本次专注':`第 ${rows.length-i} 次专注`}</h3><span class="record-time">${clockTime(r.start)} — ${r.active?(state.active.since===null?'已暂停':'进行中'):clockTime(r.end)}${C.dateKey(r.end)!==r.date?' · 跨日':''}</span></div><div class="record-duration">${shortDuration(r.ms)}<small>${r.active?'尚未结束':'已完成'}</small></div></article></div>`).join(''):`<div class="empty-state">${icon('book')}<h3>暂无学习记录</h3>${selected===today?'<p>点击「开始」计时</p>':''}</div>`;renderTimer();}
   function renderStats(){const data=C.buckets(state,period,Date.now()), bs=data.buckets;const max=Math.max(...bs.map(b=>b.ms)),unit=max>=7200000?3600000:60000;const ceiling=Math.max(1,Math.ceil(max/unit/4))*4;$('chart-unit').textContent=`单位：${unit===3600000?'小时':'分钟'}`;$('stats-total').innerHTML=totalHTML(data.total);$('stats-range').textContent=`${bs[0].key.replaceAll('-','.')} — ${C.dateKey(Date.now()).replaceAll('-','.')} · ${period==='year'?'近 12 个月':`近 ${data.days} 天`}`;$('chart-grid').innerHTML=[ceiling,ceiling/2,0].map(v=>`<div><span>${v}</span></div>`).join('');$('chart-bars').classList.toggle('dense',period==='month');$('chart-bars').innerHTML=bs.map((b,i)=>`<button class="bar" data-bucket="${i}" aria-label="${b.key}，${shortDuration(b.ms)}" aria-pressed="false"><span class="bar-fill" style="height:${b.ms/unit/ceiling*100}%"></span></button>`).join('');$('chart-labels').innerHTML=bs.map((b,i)=>`<span>${period==='month'&&![0,7,14,21,29].includes(i)?'':period==='year'?b.label.replace('月',''):b.label}</span>`).join('');$('chart-detail').textContent=data.total?'点击柱形，查看详细记录':'暂无学习记录';$('chart-bars').querySelectorAll('button').forEach(button=>button.onclick=()=>{document.querySelectorAll('.bar').forEach(b=>{b.classList.remove('selected');b.setAttribute('aria-pressed','false');});button.classList.add('selected');button.setAttribute('aria-pressed','true');const b=bs[Number(button.dataset.bucket)];$('chart-detail').textContent=`${b.key} · ${shortDuration(b.ms)}`;});const scope={week:'本周',month:'本月',year:'本年'}[period];$('average-label').textContent=`${scope}日均学习`;$('sessions-label').textContent=`${scope}专注次数`;$('stats-average').textContent=shortDuration(data.total/data.days);$('stats-sessions').textContent=`${data.sessions} 次`;$('stats-days').textContent=`${state.streakScope==='period'?Math.min(data.streak,data.days):data.streak} 天`;$('streak-label').textContent=state.streakScope==='period'?`${scope}连续学习天数`:'连续学习天数';$('streak-note').textContent='不中断学习至今的天数';const best=state.bestScope==='period'?data.periodBest:data.historyBest;$('best-label').textContent=state.bestScope==='period'?`${scope}单日最佳`:'历史单日最佳';$('stats-best').textContent=shortDuration(best.ms);$('best-date').textContent=best.ms?best.key:'暂无记录';renderHeatmap(data.heatmap);}
-  let swipePress=null;
+  let swipePress=null,swipeBusy=false;
   const recordList=$('record-list');
   function closeSwipes(){recordList.querySelectorAll('.record-swipe').forEach(row=>{row.classList.remove('swiping');row.querySelector('.record').style.transform='';});}
-  function deleteRecord(row){
-    const record=state.records[Number(row.dataset.recordIndex)];if(!record)return;
-    // Daily rows are slices of a saved session: remove the whole session, keeping the active timer.
-    if(save(C.removeRecord(state,record.id))){render();toast('本次专注记录已删除',1500);}else closeSwipes();
+  function deleteRecord(row,direction=1){
+    const record=state.records[Number(row.dataset.recordIndex)];if(!record||swipeBusy)return;
+    const id=record.id,content=row.querySelector('.record');swipeBusy=true;
+    row.style.height=`${row.getBoundingClientRect().height}px`;
+    row.classList.toggle('swipe-right',direction>0);row.classList.add('dismissing');
+    content.style.transform=`translateX(${direction*row.getBoundingClientRect().width}px)`;
+    // Match inch_light's Dismissible: slide away first, then collapse the space before deleting.
+    setTimeout(()=>{row.classList.add('collapsing');row.style.height='0px';},200);
+    setTimeout(()=>{
+      swipeBusy=false;
+      if(save(C.removeRecord(state,id))){render();toast('本次专注记录已删除',1500);}
+      else{row.classList.remove('dismissing','collapsing');row.style.height='';closeSwipes();}
+    },500);
   }
   recordList.addEventListener('pointerdown',event=>{
-    if(!event.isPrimary||event.button!==0||event.target.closest('button'))return;
+    if(swipeBusy||!event.isPrimary||event.button!==0||event.target.closest('button'))return;
     const row=event.target.closest('[data-record-index]');if(!row)return;
-    closeSwipes();swipePress={row,id:event.pointerId,x:event.clientX,y:event.clientY,dx:0,dragging:false};
+    closeSwipes();swipePress={row,id:event.pointerId,x:event.clientX,y:event.clientY,dx:0,dragging:false,samples:[{x:event.clientX,y:event.clientY,time:event.timeStamp}]};
   });
   recordList.addEventListener('pointermove',event=>{
     const p=swipePress;if(!p||p.id!==event.pointerId)return;
@@ -37,7 +46,10 @@
       if(Math.abs(dx)<10||Math.abs(dx)<=Math.abs(dy))return;
       p.dragging=true;p.row.classList.add('swiping');p.row.setPointerCapture(event.pointerId);
     }
-    event.preventDefault();p.dx=Math.max(-88,Math.min(88,dx));
+    event.preventDefault();const width=p.row.getBoundingClientRect().width;p.dx=Math.max(-width,Math.min(width,dx));
+    p.row.classList.toggle('swipe-right',dx>0);
+    p.samples.push({x:event.clientX,y:event.clientY,time:event.timeStamp});
+    while(p.samples.length>2&&event.timeStamp-p.samples[0].time>100)p.samples.shift();
     p.row.querySelector('.record').style.transform=`translateX(${p.dx}px)`;
   });
   function endSwipe(event){
@@ -48,12 +60,16 @@
     swipePress=null;
     if(p.row.hasPointerCapture(event.pointerId))p.row.releasePointerCapture(event.pointerId);
     p.row.classList.remove('swiping');
-    p.row.querySelector('.record').style.transform='';
-    if(event.type==='pointerup'&&Math.abs(p.dx)>=72)deleteRecord(p.row);
+    const first=p.samples[0],last=p.samples[p.samples.length-1],elapsed=event.timeStamp-first.time;
+    const vx=elapsed>0?(last.x-first.x)/elapsed*1000:0,vy=elapsed>0?(last.y-first.y)/elapsed*1000:0;
+    const fling=Math.abs(vx)>=700&&Math.abs(vx)-Math.abs(vy)>=400;
+    const dismiss=fling?Math.sign(vx)===Math.sign(p.dx):Math.abs(p.dx)>p.row.getBoundingClientRect().width*.4;
+    if(event.type==='pointerup'&&dismiss)deleteRecord(p.row,Math.sign(p.dx));
+    else p.row.querySelector('.record').style.transform='';
   }
   for(const type of ['pointerup','pointercancel','lostpointercapture'])recordList.addEventListener(type,endSwipe);
   recordList.addEventListener('keydown',event=>{if(event.key==='Delete'){const row=event.target.closest('[data-record-index]');if(row){event.preventDefault();deleteRecord(row);}}else if(event.key==='Escape'){swipePress=null;closeSwipes();}});
-  window.addEventListener('blur',()=>{swipePress=null;closeSwipes();});
+  window.addEventListener('blur',()=>{swipePress=null;if(!swipeBusy)closeSwipes();});
   let heatmapSignature='',heatmapSelected='';
   function renderHeatmap(days){
     const signature=days.map(d=>`${d.key}:${d.ms}`).join('|');
@@ -154,6 +170,6 @@
     }catch(e){toast('读取失败，请检查剪切板权限后重试');}
   };
   window.addEventListener('storage',()=>{state=read();render();});document.addEventListener('visibilitychange',()=>{if(!document.hidden)render();});
-  setInterval(()=>{const today=C.dateKey(Date.now());if(today!==lastToday){if(selected===lastToday)selected=today;lastToday=today;render();}else if(state.active){if(view==='home'){if(swipePress)renderTimer();else renderHome();}else if(view==='stats')renderStats();}},1000);
+  setInterval(()=>{const today=C.dateKey(Date.now());if(today!==lastToday){if(selected===lastToday)selected=today;lastToday=today;render();}else if(state.active){if(view==='home'){if(swipePress||swipeBusy)renderTimer();else renderHome();}else if(view==='stats')renderStats();}},1000);
   render();if(storageError)toast('无法读取记录，请重新打开应用；原始数据未被覆盖');
 })();
