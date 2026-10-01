@@ -83,3 +83,9 @@ test('热力图按每日累计分档，跨闰日保持365格',()=>{
   const leap=C.buckets(C.initial(),'year',new Date(2024,2,1,12).getTime()).heatmap;
   assert.equal(leap.length,365);assert.equal(leap[363].key,'2024-02-29');
 });
+
+test('连续学习注释在所有时段和范围下固定不变',()=>{
+ for(const scope of ['period','history'])for(const period of ['week','month','year']){
+  const ui=setupUI({...state([record(0)]),streakScope:scope},period);assert.equal(ui.$('streak-note').textContent,'不中断学习至今的天数');
+ }
+});

@@ -19,6 +19,14 @@
     const record = {...state.active, since:null, ended:now, segments:segments(state.active,now)};
     return {...state,active:null,records:[...state.records,record]};
   }
+  // Each hour starts a darker lap on the same gray track; cap only the ring, never the timer.
+  function ringProgress(active,now) {
+    const seconds=Math.min(28800,Math.floor(duration(active,now)/1000));
+    return {seconds,hour:Math.min(8,Math.floor(seconds/3600)+1),completed:Math.floor(seconds/3600),fraction:seconds===28800?1:seconds%3600/3600};
+  }
+  function removeRecord(state,id) {
+    return {...state,records:state.records.filter(record=>record.id!==id)};
+  }
   function split(record, now) {
     const days = new Map();
     for (const [start,end] of segments(record,now)) {
@@ -102,6 +110,6 @@
     }
     return {state:{...state,records:[...state.records,...added]},added:added.length,duplicates,conflicts};
   }
-  const api = {dateKey,localDate,initial,start,toggle,finish,duration,rows,buckets,validState,exportBackup,parseBackup,mergeRecords};
+  const api = {dateKey,localDate,initial,start,toggle,finish,removeRecord,duration,ringProgress,rows,buckets,validState,exportBackup,parseBackup,mergeRecords};
   if(typeof module!=='undefined') module.exports=api; else root.StudyCore=api;
 })(typeof window==='undefined'?globalThis:window);
