@@ -46,19 +46,25 @@
   const rows = (state,now) => [...state.records,...(state.active ? [state.active] : [])].flatMap(r=>split(r,now));
   function buckets(state,period,now) {
     const todayKey = studyDateKey(now), today = localDate(todayKey);
-    const count = period === 'week' ? 7 : period === 'month' ? 30 : 12;
+    const calendar = state.statsMode === 'calendar', first = new Date(today);
+    if(calendar){
+      if(period==='week')first.setDate(first.getDate()-(first.getDay()+6)%7);
+      else if(period==='month')first.setDate(1);
+      else first.setMonth(0,1);
+    }else first.setDate(first.getDate()-({week:7,month:30,year:365}[period]-1));
+    const start = dateKey(first), days = Math.round((today-first)/86400000)+1;
+    // Annual columns group by month, but the first month is clipped to the exact day range.
+    const count = period==='year' ? (today.getFullYear()-first.getFullYear())*12+today.getMonth()-first.getMonth()+1 : days;
     const result = Array.from({length:count},(_,i)=>{
-      const date = new Date(today);
-      if (period === 'year') {date.setDate(1);date.setMonth(date.getMonth()-(count-1-i));}
-      else date.setDate(date.getDate()-(count-1-i));
+      const date = new Date(first);
+      if (period === 'year') {date.setDate(1);date.setMonth(date.getMonth()+i);}
+      else date.setDate(date.getDate()+i);
       const key = dateKey(date);
       return {key:period === 'year'?key.slice(0,7):key,ms:0,count:0,label:period === 'year'?`${date.getMonth()+1}月`:`${date.getMonth()+1}/${date.getDate()}`};
     });
-    const start = period === 'year' ? `${result[0].key}-01` : result[0].key;
     const allRows = rows(state,now);
     const validRows = allRows.filter(r=>r.date>=start && r.date<=todayKey);
     for (const row of validRows) {const b=result.find(b=>b.key===(period==='year'?row.date.slice(0,7):row.date));if(b){b.ms+=row.ms;b.count++;}}
-    const days = Math.round((today-localDate(start))/86400000)+1;
     // Aggregate by study day before finding the best, including year view.
     const daily = new Map();
     for(const row of allRows)if(row.date<=todayKey&&row.ms>0)daily.set(row.date,(daily.get(row.date)||0)+row.ms);
@@ -69,7 +75,7 @@
       const d=new Date(today);d.setDate(d.getDate()-(364-i));const key=dateKey(d),ms=daily.get(key)||0;
       return {key,ms,level:ms===0?0:ms<1800000?1:ms<3600000?2:ms<7200000?3:4};
     });
-    return {heatmap,streak,historyBest:best(''),periodBest:best(start),buckets:result,total:validRows.reduce((n,r)=>n+r.ms,0),sessions:new Set(validRows.map(r=>r.id)).size,activeDays:new Set(validRows.filter(r=>r.ms>0).map(r=>r.date)).size,days};
+    return {start,end:todayKey,heatmap,streak,historyBest:best(''),periodBest:best(start),buckets:result,total:validRows.reduce((n,r)=>n+r.ms,0),sessions:new Set(validRows.map(r=>r.id)).size,activeDays:new Set(validRows.filter(r=>r.ms>0).map(r=>r.date)).size,days};
   }
   function validState(s) {
     const segment = p => Array.isArray(p)&&p.length===2&&p.every(Number.isFinite)&&p[1]>=p[0];

@@ -4,10 +4,12 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.os.Build;
 import android.content.ClipData;
+import android.content.Intent;
 import android.content.ClipboardManager;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Insets;
+import android.net.Uri;
 import android.widget.FrameLayout;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
@@ -27,6 +29,14 @@ public class MainActivity extends Activity {
         private final SharedPreferences prefs = getSharedPreferences("study-records", MODE_PRIVATE);
         @JavascriptInterface public String read() { return prefs.getString("state", ""); }
         @JavascriptInterface public boolean write(String value) { return prefs.edit().putString("state", value).commit(); }
+        @JavascriptInterface public void openReleases() {
+            // Only this fixed release page opens externally; the local WebView stays offline.
+            runOnUiThread(() -> {
+                try {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/Symplatt/study-time/releases")));
+                } catch (Exception e) { fileResult(false,"无法打开浏览器，请稍后重试"); }
+            });
+        }
         @JavascriptInterface public void exportData(String value) {
             runOnUiThread(() -> {
                 if (value == null || value.getBytes(StandardCharsets.UTF_8).length > MAX_BACKUP) { fileResult(false,"备份不能超过 10 MB"); return; }

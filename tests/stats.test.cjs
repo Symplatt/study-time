@@ -56,7 +56,7 @@ test('周期内连续天数按所选范围截断，两个卡片分别确认并�
   assert.equal(ui.$('stats-days').textContent,'1000 天');
   ui.listeners.get('streak-card:keydown')({key:'Enter',preventDefault(){}});ui.$('cancel-scope').onclick();assert.equal(ui.context.state.streakScope,undefined);
   ui.listeners.get('streak-card:keydown')({key:'Enter',preventDefault(){}});ui.$('confirm-scope').onclick();
-  for(const [period,label] of [['week','本周'],['month','本月'],['year','本年']]){
+  for(const [period,label] of [['week','近一周'],['month','近一个月'],['year','近一年']]){
     ui.context.period=period;ui.context.renderStats();assert.equal(ui.$('stats-days').textContent,`${C.buckets(s,period,now).days} 天`);
     assert.equal(ui.$('average-label').textContent,`${label}日均学习`);assert.equal(ui.$('sessions-label').textContent,`${label}专注次数`);
     assert.equal(ui.$('best-label').textContent,'历史单日最佳');
@@ -87,5 +87,12 @@ test('热力图按每日累计分档，跨闰日保持365格',()=>{
 test('连续学习注释在所有时段和范围下固定不变',()=>{
  for(const scope of ['period','history'])for(const period of ['week','month','year']){
   const ui=setupUI({...state([record(0)]),streakScope:scope},period);assert.equal(ui.$('streak-note').textContent,'不中断学习至今的天数');
+ }
+});
+
+test('所在周期同步卡片标题、日均与周期内连续天数，最佳范围独立保留',()=>{
+ const s={...state(Array.from({length:1000},(_,i)=>record(i))),statsMode:'calendar',streakScope:'period',bestScope:'period'},ui=setupUI(s);
+ for(const [period,label,days] of [['week','本周',3],['month','本月',30],['year','本年',273]]){
+  ui.context.period=period;ui.context.renderStats();assert.equal(ui.$('average-label').textContent,label+'日均学习');assert.equal(ui.$('sessions-label').textContent,label+'专注次数');assert.equal(ui.$('streak-label').textContent,label+'连续学习天数');assert.equal(ui.$('stats-days').textContent,days+' 天');assert.equal(ui.$('best-label').textContent,label+'单日最佳');assert.equal(ui.$('stats-average').textContent,'60000');
  }
 });
